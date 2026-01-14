@@ -1,0 +1,759 @@
+/* DashboardPage.css */ 
+ 
+/* --- GLOBAL LAYOUT --- */ 
+.dashboard-container { 
+  min-height: 100vh; 
+  width: 100%; 
+  background-color: #f3f4f6; 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+} 
+ 
+/* --- MOBILE VIEW (Default) --- */ 
+/* This mimics the "Phone App" look */ 
+
+/* The Button itself */
+.hamburger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #334155;
+  padding: 8px;
+  margin-right: 8px; 
+}
+
+/* The Sliding Drawer Container */
+.mobile-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); 
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s;
+}
+
+.mobile-sidebar-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* The actual menu content */
+.mobile-sidebar-content {
+  width: 280px; 
+  height: 100%;
+  /* Default Student Gradient */
+  background: linear-gradient(to bottom, #0e7490, #1e40af); 
+  color: white;
+  padding: 30px;
+  transform: translateX(-100%); 
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-sidebar-overlay.open .mobile-sidebar-content {
+  transform: translateX(0);
+}
+
+.close-menu-btn {
+  background: none;
+  border: none;
+  color: white;
+  align-self: flex-end; 
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.sidebar-item:active {
+  background-color: rgba(255, 255, 255, 0.3); 
+  transform: scale(0.98); 
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;  
+  gap: 20px;            
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 40px;  
+  line-height: 1;       
+}
+
+.mobile-layout { 
+  display: flex; 
+  flex-direction: column; 
+  padding: 20px; 
+} 
+ 
+.desktop-sidebar { 
+  display: none; 
+} 
+ 
+/* Header Section (Mobile) */ 
+.mobile-header { 
+  margin-bottom: 24px; 
+} 
+.mobile-header h1 { 
+  font-size: 1.8rem; 
+  color: #0891b2; 
+  font-weight: bold; 
+} 
+ 
+/* Profile Card (Mobile) */ 
+.profile-card { 
+  display: flex; 
+  align-items: center; 
+  background-color: white; 
+  padding: 16px; 
+  border-radius: 16px; 
+  margin-bottom: 30px; 
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+} 
+ 
+.profile-avatar { 
+  width: 50px; 
+  height: 50px; 
+  background-color: #334155; 
+  border-radius: 8px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  margin-right: 15px; 
+  color: white; 
+} 
+ 
+/* Grid for Action Buttons */ 
+.action-grid { 
+  display: grid; 
+  flex-wrap: wrap;
+  gap: 24px; 
+  width: 100%;
+}
+
+.action-card { 
+  background-color: white; 
+  padding: 24px; 
+  border-radius: 16px; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  text-align: center; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+  cursor: pointer; 
+  transition: transform 0.2s, box-shadow 0.2s; 
+  border: 1px solid transparent; 
+} 
+ 
+.action-card:hover { 
+  transform: translateY(-5px); 
+  border-color: #06b6d4; 
+  box-shadow: 0 10px 15px rgba(6, 182, 212, 0.15); 
+} 
+ 
+.card-icon { 
+  margin-bottom: 12px; 
+} 
+ 
+.card-title { 
+  font-weight: 600; 
+  color: #334155; 
+  font-size: 0.9rem; 
+} 
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 32px; 
+  margin-top: 20px; 
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 16px; 
+  padding: 10px 0; 
+  font-size: 1.1rem; 
+  cursor: pointer;
+}
+ 
+ 
+/* --- DESKTOP VIEW (Screens larger than 768px) --- */ 
+@media (min-width: 769px) { 
+   
+  .dashboard-container { 
+    display: flex; 
+    background-color: #f8fafc; 
+  } 
+ 
+  /* 1. SIDEBAR */ 
+  .desktop-sidebar { 
+    display: flex; 
+    flex-direction: column; 
+    width: 260px; 
+    /* Student Gradient (Default) */
+    background: linear-gradient(to bottom, #0e7490, #1e40af); 
+    color: white; 
+    padding: 30px; 
+    height: 100vh; 
+    position: sticky; 
+    top: 0; 
+  } 
+ 
+  .sidebar-logo { 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    margin-bottom: 50px; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    margin-top: 30px;
+  } 
+ 
+  .sidebar-menu { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+  } 
+ 
+  .sidebar-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    padding: 12px; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    transition: background 0.2s; 
+    opacity: 0.8; 
+  } 
+ 
+  .sidebar-item:hover, .sidebar-item.active { 
+    background-color: rgba(255, 255, 255, 0.15); 
+    opacity: 1; 
+  } 
+ 
+  /* 2. MAIN CONTENT AREA */ 
+  .mobile-layout { 
+    display: none; 
+  } 
+ 
+  .desktop-main { 
+    flex: 1; 
+    padding: 40px; 
+    overflow-y: auto; 
+  } 
+ 
+  /* Top Header with Search */ 
+  .desktop-topbar { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 40px; 
+  } 
+ 
+  .search-bar { 
+    background: white; 
+    padding: 10px 20px; 
+    border-radius: 99px; 
+    width: 300px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+    border: 1px solid #e2e8f0; 
+  } 
+ 
+  .top-profile { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    /* Optional: Add background/padding to look more like a card */
+    background: white;
+    padding: 8px 16px;
+    border-radius: 50px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  } 
+ 
+  /* Welcome Banner (Student Default) */ 
+  .welcome-banner { 
+    background: linear-gradient(to right, #a855f7, #6366f1); /* Purple to Indigo */ 
+    border-radius: 24px; 
+    padding: 40px; 
+    color: white; 
+    margin-bottom: 40px; 
+    position: relative; 
+    overflow: hidden; 
+  } 
+ 
+  .welcome-text h2 { 
+    font-size: 2rem; 
+    font-weight: bold; 
+    margin-bottom: 8px; 
+  } 
+ 
+  .action-grid { 
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Default 2 columns for students */
+    gap: 24px; 
+    width: 100%;
+  } 
+   
+  .action-card { 
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+  } 
+
+  .card-icon {
+    transform: scale(1.0);
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 1.0rem;
+  }
+} 
+ 
+/* Helper to hide desktop main on mobile */ 
+@media (max-width: 768px) { 
+  .desktop-main { 
+    display: none; 
+  } 
+}
+
+/* ========================================= */
+/* ADMIN THEME OVERRIDES                     */
+/* ========================================= */
+
+/* Sidebar Gradient: Darker, more official (Slate/Black) */
+.admin-theme .desktop-sidebar,
+.admin-theme .mobile-sidebar-content {
+  background: linear-gradient(to bottom, #0f172a, #334155);
+}
+
+/* Banner Gradient: Emerald/Teal to distinguish from Student Purple */
+.admin-theme .welcome-banner {
+  background: linear-gradient(to right, #059669, #0d9488);
+}
+
+/* Admin Grid: 3 columns for 3 items on desktop */
+@media (min-width: 769px) {
+  .admin-theme .action-grid {
+    grid-template-columns: 1fr 1fr 1fr; /* 3 columns */
+  }
+}
+
+/* Admin Hover Colors */
+.admin-theme .action-card:hover { 
+  border-color: #059669; 
+  box-shadow: 0 10px 15px rgba(5, 150, 105, 0.15); 
+}
+
+/* ========================================= */
+/* VENUE CHECK COMPONENT STYLES              */
+/* ========================================= */
+.venue-check-container {
+  background-color: white;
+  padding: 40px; /* Increased padding */
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* Softer, larger shadow */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  
+  /* FIXED: Make it wider on desktop */
+  width: 100%; 
+  max-width: 700px; /* Increased from 500px to 700px */
+  margin: 0 auto; 
+}
+/* Make the Input Box Larger and Nicer */
+.venue-input {
+  width: 100%;
+  padding: 16px 20px; /* Larger padding */
+  border: 2px solid #e2e8f0;
+  border-radius: 16px; /* Rounder corners */
+  font-size: 1.2rem; /* Larger font */
+  outline: none;
+  transition: all 0.2s ease;
+  background-color: #f8fafc; /* Slight background color */
+  margin-bottom: 15px;
+}
+
+.venue-input:focus {
+  border-color: #0ea5e9;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); /* Glow effect */
+}
+
+/* Label styling */
+.venue-form label {
+  font-weight: 700;
+  color: #1e293b;
+  text-align: left;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  display: block;
+}
+
+.venue-title {
+  font-size: 2rem; /* Larger Title */
+  font-weight: 800;
+  color: #0284c7;
+  margin-bottom: 25px;
+  text-decoration: none; /* Removed underline for cleaner look */
+}
+
+
+.venue-icon {
+  margin-bottom: 30px;
+}
+
+.venue-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 15px;
+}
+
+.venue-button {
+  background: linear-gradient(to right, #06b6d4, #0ea5e9);
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 99px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.1s;
+  margin-top: 10px;
+}
+
+.venue-button:active {
+  transform: scale(0.98);
+}
+
+.venue-button-secondary {
+    background: transparent;
+    color: #64748b;
+    border: 2px solid #e2e8f0;
+    padding: 10px;
+    border-radius: 99px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.venue-details {
+  text-align: left;
+  width: 100%;
+}
+
+.venue-details p {
+  margin-bottom: 12px;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.venue-details strong {
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.venue-error {
+  color: #334155;
+}
+
+.error-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ef4444;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+/* Adjust for mobile to blend with background */
+@media (max-width: 768px) {
+  .venue-check-container {
+    padding: 0;
+    box-shadow: none;
+    background-color: transparent;
+  }
+  /* The content box itself */
+  .venue-content-box {
+      background-color: white;
+      padding: 25px;
+      border-radius: 20px;
+      width: 100%;
+  }
+  .venue-title {
+      margin-top: 10px;
+  }
+}
+
+/* --- PROFILE PAGE STYLES --- */
+
+/* Center the content in the main area */
+.profile-content-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.profile-detail-card {
+  background: white;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.large-avatar {
+  width: 120px;
+  height: 120px;
+  background-color: #334155;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.profile-info-group {
+  width: 100%;
+  text-align: left;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-row {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 12px;
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.info-value {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #0f172a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Buttons */
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+  color: #0ea5e9;
+}
+
+.icon-btn:hover {
+  background-color: #e0f2fe;
+}
+
+/* Email Edit Form */
+.email-edit-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.email-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.save-btn {
+  background-color: #0ea5e9;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.error-msg {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.copy-tooltip {
+  font-size: 0.8rem;
+  color: #059669;
+  margin-left: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.copy-tooltip.show {
+  opacity: 1;
+}
+
+/* --- LOGOUT MODAL STYLES --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Dimmed background */
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  z-index: 2000; /* Sit on top of everything */
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-box {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  transform: scale(1);
+  animation: scaleUp 0.2s ease-in-out;
+}
+
+.modal-box h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.modal-box p {
+  color: #64748b;
+  margin-bottom: 25px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-cancel {
+  background-color: #e2e8f0;
+  color: #334155;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: #cbd5e1;
+}
+
+.btn-confirm {
+  background-color: #ef4444; /* Red for logout */
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-confirm:hover {
+  background-color: #dc2626;
+}
+
+/* Simple animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleUp { from { transform: scale(0.95); } to { transform: scale(1); } }
+
+/* --- RESULT CHECKER STYLES --- */
+
+/* Read-Only Input Style (Grayed out to show it's unchangeable) */
+.input-locked {
+  background-color: #f1f5f9; /* Light gray */
+  color: #64748b; /* Muted text */
+  cursor: not-allowed;
+  border-color: #cbd5e1;
+}
+
+/* Result Table */
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.result-table th {
+  background-color: #f8fafc;
+  color: #334155;
+  font-weight: 700;
+  text-align: left;
+  padding: 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.result-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+}
+
+.result-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Grade Colors */
+.grade-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.grade-A { background-color: #dcfce7; color: #166534; } /* Green */
+.grade-B { background-color: #e0f2fe; color: #075985; } /* Blue */
+.grade-C { background-color: #fef9c3; color: #854d0e; } /* Yellow */
+.grade-D { background-color: #ffedd5; color: #9a3412; } /* Orange */
+.grade-F { background-color: #fee2e2; color: #991b1b; } /* Red */

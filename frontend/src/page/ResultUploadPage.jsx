@@ -169,7 +169,7 @@ const ResultUploadPage = () => {
     e.preventDefault();
     e.stopPropagation();
   };
-
+  console.log(sessions);
   const downloadTemplate = () => {
     const templateContent = `CourseTitle,CourseCode,RegNumber,Score,Grade
 Introduction to Computer Science,CST101,CST/21/COM/00750,85,A
@@ -705,8 +705,8 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               >
                 <option value="">Select Semester</option>
                 {semesters.map((sem) => (
-                  <option key={sem} value={sem}>
-                    {sem} Semester
+                  <option key={sem.id} value={sem.id}>
+                    {semesters.name}
                   </option>
                 ))}
               </select>

@@ -32,9 +32,9 @@ export class AcademicSession {
   static async findAll() {
     try {
       const query = `SELECT * FROM academic.academic_sessions `
-      const result = await pool.query(query, [id])
+      const result = await pool.query(query)
       if (result.rowCount === 0) return null
-      return result.rows[0]
+      return result.rows
     } catch (error) {
       throw error
     }

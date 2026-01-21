@@ -9,7 +9,7 @@ export const fetchSessions = async (req, res) => {
       sessions
     })
   } catch (error) {
-    console.error("Add result error:", error.message);
+    console.error("fetch sessions error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

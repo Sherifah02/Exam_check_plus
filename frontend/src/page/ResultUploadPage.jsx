@@ -6,11 +6,8 @@ import {
   Menu,
   ShieldCheck,
   LayoutDashboard,
-  Settings,
   LogOut,
-  Bell,
   UploadCloud,
-  FileText,
   X,
   GraduationCap,
   Building,
@@ -24,6 +21,7 @@ import {
 
 import { useState, useRef, useEffect } from "react";
 import { useGeneralStore } from "../store/genStore";
+import { useResultStore } from "../store/resultStore";
 
 const ResultUploadPage = () => {
   const navigate = useNavigate();
@@ -47,6 +45,7 @@ const ResultUploadPage = () => {
   const [errors, setErrors] = useState({});
   const [uploadProgress, setUploadProgress] = useState(0);
   const [previewData, setPreviewData] = useState([]);
+
   const {
     semesters,
     levels,
@@ -58,6 +57,8 @@ const ResultUploadPage = () => {
     fetchSessions,
   } = useGeneralStore();
 
+  const { uploadResult } = useResultStore();
+
   useEffect(() => {
     const runGeneralStore = async () => {
       await fetchLevels();
@@ -67,6 +68,7 @@ const ResultUploadPage = () => {
     };
     runGeneralStore();
   }, []);
+
   // Navigation handlers
   const handleDashboardClick = () => {
     navigate("/admin/dashboard");
@@ -102,7 +104,7 @@ const ResultUploadPage = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "courseCode" ? value.toUpperCase() : value,
     }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -169,7 +171,7 @@ const ResultUploadPage = () => {
     e.preventDefault();
     e.stopPropagation();
   };
-  console.log(sessions);
+
   const downloadTemplate = () => {
     const templateContent = `CourseTitle,CourseCode,RegNumber,Score,Grade
 Introduction to Computer Science,CST101,CST/21/COM/00750,85,A
@@ -195,8 +197,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
     const newErrors = {};
 
     if (!formData.level) newErrors.level = "Please select a level";
-    if (!formData.department)
-      newErrors.department = "Please select a department";
+    if (!formData.department) newErrors.department = "Please select a department";
     if (!formData.semester) newErrors.semester = "Please select a semester";
     if (!formData.session) newErrors.session = "Please select a session";
     if (!formData.file) newErrors.file = "Please upload a file";
@@ -211,6 +212,19 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
     if (!validateForm()) {
       return;
     }
+
+    // Create FormData for API request
+    const apiFormData = new FormData();
+    apiFormData.append("level_id", formData.level);
+    apiFormData.append("department_id", formData.department);
+    apiFormData.append("semester_id", formData.semester);
+    apiFormData.append("session_id", formData.session);
+
+    if (formData.courseCode && formData.courseCode.trim()) {
+      apiFormData.append("course_code", formData.courseCode.trim());
+    }
+
+    apiFormData.append("result_file", formData.file);
 
     setIsLoading(true);
     setUploadStatus(null);
@@ -227,17 +241,22 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
     }, 200);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await uploadResult(apiFormData);
+
+      if (!response.success) {
+        throw new Error(response.message || "Upload failed");
+      }
 
       clearInterval(progressInterval);
       setUploadProgress(100);
 
       setUploadStatus({
         type: "success",
-        message: "Results uploaded successfully! 15 records processed.",
-        details: "All results have been saved to the database.",
+        message: "Results uploaded successfully!",
+        details: response.message || "All results have been saved to the database.",
       });
 
+      // Reset form after successful upload
       setTimeout(() => {
         setFormData({
           level: "",
@@ -486,9 +505,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                   )}
                 </div>
 
-                {/* Course Code (Optional) */}
+                {/* Course Code */}
                 <div className="form-group full-width">
-                  <label className="form-label">Course Code (Optional)</label>
+                  <label className="form-label">Course Code </label>
                   <input
                     type="text"
                     name="courseCode"
@@ -657,7 +676,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               >
                 <option value="">Select Level</option>
                 {levels.map((level) => (
-                  <option key={level} value={level.id}>
+                  <option key={level.id} value={level.id}>
                     {level.name}
                   </option>
                 ))}
@@ -681,7 +700,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               >
                 <option value="">Select Department</option>
                 {departments.map((dept) => (
-                  <option key={dept} value={dept.id}>
+                  <option key={dept.id} value={dept.id}>
                     {dept.name}
                   </option>
                 ))}
@@ -706,7 +725,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                 <option value="">Select Semester</option>
                 {semesters.map((sem) => (
                   <option key={sem.id} value={sem.id}>
-                    {semesters.name}
+                    {sem.name}
                   </option>
                 ))}
               </select>
@@ -729,7 +748,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               >
                 <option value="">Select Session</option>
                 {sessions.map((session) => (
-                  <option key={session} value={session.id}>
+                  <option key={session.id} value={session.id}>
                     {session.name}
                   </option>
                 ))}
@@ -743,7 +762,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
             </div>
 
             <div className="form-group">
-              <label className="form-label">Course Code (Optional)</label>
+              <label className="form-label">Course Code </label>
               <input
                 type="text"
                 name="courseCode"

@@ -146,11 +146,11 @@ export const createTables = async () => {
       CREATE TABLE IF NOT EXISTS academic.result_batches (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         uploaded_by UUID REFERENCES auth.users(id),
-        department_id UUID REFERENCES academic.departments(id),
-        level_id UUID REFERENCES academic.levels(id),
-        semester_id UUID REFERENCES academic.semesters(id),
-        session_id UUID REFERENCES academic.academic_sessions(id),
-        course_id UUID REFERENCES academic.courses(id),
+        department_id NOT NULL UUID REFERENCES academic.departments(id),
+        level_id NOT NULL  UUID REFERENCES academic.levels(id),
+        semester_id NOT NULL UUID REFERENCES academic.semesters(id),
+        session_id NOT NULL UUID REFERENCES academic.academic_sessions(id),
+        course_id NOT NULL UUID REFERENCES academic.courses(id),
         file_path TEXT,
         uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -162,11 +162,11 @@ export const createTables = async () => {
     await client.query(`
       CREATE TABLE IF NOT EXISTS academic.results (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        batch_id UUID REFERENCES academic.result_batches(id) ON DELETE CASCADE,
-        reg_number TEXT REFERENCES academic.students(reg_number) ON DELETE CASCADE,
-        course_id UUID REFERENCES academic.courses(id) ON DELETE CASCADE,
-        score INT CHECK (score >= 0 AND score <= 100),
-        grade VARCHAR(2),
+        batch_id NOT NULL UUID REFERENCES academic.result_batches(id) ON DELETE CASCADE,
+        reg_number NOT NULL TEXT REFERENCES academic.students(reg_number) ON DELETE CASCADE,
+        course_id NOT NULL UUID REFERENCES academic.courses(id) ON DELETE CASCADE,
+        score NOT NULL INT CHECK (score >= 0 AND score <= 100),
+        grade NOT NULL VARCHAR(2),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE (batch_id, reg_number, course_id)
       );

@@ -11,7 +11,8 @@ export class Result {
       throw error
     }
   }
-  static async findResult({ batch_id, reg_number,semester }) {
+  static async findResult({ batch_id, reg_number, semester }) {
+    console.table({ batch_id, reg_number })
     try {
       const query = `SELECT r.batch_id,
         r.score,
@@ -21,7 +22,7 @@ export class Result {
         c.course_code
       FROM academic.results r
       LEFT JOIN academic.courses c ON r.course_id = c.id
-      WHERE r.batch_id = $1 AND r.reg_number =$2 
+      WHERE r.batch_id = $1 AND r.reg_number =$2
       `
       const result = await pool.query(query, [batch_id, reg_number])
       if (result.rowCount === 0) return null

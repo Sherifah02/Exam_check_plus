@@ -34,7 +34,7 @@ export const addResult = async (req, res) => {
       AcademicSession.findById(session),
       Courses.findByCourseCode(courseCode),
     ]);
-
+console.log(session_exist)
     const checks = [
       { value: department_exist, message: "Department not found" },
       { value: semester_exist, message: "Semester not found" },
@@ -73,7 +73,9 @@ export const addResult = async (req, res) => {
       semester_id: semester_exist.id,
       course_id: course_exist.id,
       file_path: req.file.path,
+      session_id:session_exist.id
     });
+    console.log(result_batch)
 
     //  Insert all results
     const insertPromises = result_data.map(row => {
@@ -106,9 +108,11 @@ export const addResult = async (req, res) => {
   }
 };
 export const checkStudentResult = async (req, res) => {
-  const { session, reg_number } = req.body
+  const { session, reg_number,semester } = req.body
+  console.log(reg_number)
   try {
-    const result_batch = await ResultBatch.findBySemesterId(session)
+    const result_batch = await ResultBatch.findBySemesterId({ session_id:session, semester_id:semester })
+
     if (!result_batch) {
       return res.status(404).json({
         success: false,
@@ -119,6 +123,7 @@ export const checkStudentResult = async (req, res) => {
       batch_id: result_batch.id,
       reg_number
     })
+    console.log(result)
     return res.status(200).json({
       success: true,
       message: "result fetched",

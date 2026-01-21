@@ -3,7 +3,7 @@ import api from '../helper/api'
 import { toast } from 'react-toastify'
 
 const initialState = {
-  result: null,
+  resultData: null,
   loadingResult: false,
   resultError: null,
   resultSuccess: null
@@ -21,7 +21,7 @@ export const useResultStore = create((set, get) => ({
         return { success: false }
       }
       set({ loadingResult: false, resultError: null, resultSuccess: data.message })
-      toast.success(data.success)
+      toast.success(data.message)
       return { success: true }
     } catch (error) {
       const errMsg =
@@ -35,6 +35,7 @@ export const useResultStore = create((set, get) => ({
     }
   },
   checkResult: async (payload) => {
+    console.table(payload)
     set({ loadingResult: true, resultError: null, resultSuccess: null })
     try {
       const { data } = await api.post(`${ENDPOINT}/check-student-result`, payload)
@@ -43,7 +44,7 @@ export const useResultStore = create((set, get) => ({
         set({ loadingResult: false, resultError: data.message, resultSuccess: null })
         return { success: false }
       }
-      set({ loadingResult: false, resultError: null, resultSuccess: data.message, result: data.result })
+      set({ loadingResult: false, resultError: null, resultSuccess: data.message, resultData: data.result })
       return { success: true }
     } catch (error) {
       const errMsg =

@@ -28,7 +28,7 @@ export class Departments {
       const result = await pool.query(query, [id])
       if (result.rowCount === 0) return null
 
-      return result
+      return result.rows[0]
     } catch (error) {
       throw error
     }

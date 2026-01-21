@@ -17,7 +17,7 @@ export class Semester {
       const query = `SELECT * FROM academic.semesters WHERE id=$1`
       const result = await pool.query(query, [id])
       if (result.rowCount === 0) return []
-      return result.rows
+      return result.rows[0]
     } catch (error) {
       throw error
     }

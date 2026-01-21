@@ -19,17 +19,23 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useGeneralStore } from "../store/genStore";
 import { useResultStore } from "../store/resultStore";
 
 const ResultUploadPage = () => {
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const fileInputRef = useRef(null);
 
-  // State for form data
+  // UI State
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [previewData, setPreviewData] = useState([]);
+
+  // Form State
   const [formData, setFormData] = useState({
     level: "",
     department: "",
@@ -39,18 +45,14 @@ const ResultUploadPage = () => {
     file: null,
   });
 
-  // State for UI
-  const [uploadStatus, setUploadStatus] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [previewData, setPreviewData] = useState([]);
 
+  // Store Data with safety checks
   const {
-    semesters,
-    levels,
-    departments,
-    sessions,
+    semesters = [],
+    levels = [],
+    departments = [],
+    sessions = [],
     fetchLevels,
     fetchDepartments,
     fetchSemesters,
@@ -59,148 +61,134 @@ const ResultUploadPage = () => {
 
   const { uploadResult } = useResultStore();
 
+  // Initialize data
   useEffect(() => {
-    const runGeneralStore = async () => {
-      await fetchLevels();
-      await fetchDepartments();
-      await fetchSemesters();
-      await fetchSessions();
+    const loadInitialData = async () => {
+      try {
+        await Promise.all([
+          fetchLevels(),
+          fetchDepartments(),
+          fetchSemesters(),
+          fetchSessions(),
+        ]);
+      } catch (error) {
+        console.error("Failed to load initial data:", error);
+        setUploadStatus({
+          type: "error",
+          message: "Failed to load form data",
+          details: "Please refresh the page and try again.",
+        });
+      }
     };
-    runGeneralStore();
-  }, []);
+
+    loadInitialData();
+  }, [fetchLevels, fetchDepartments, fetchSemesters, fetchSessions]);
 
   // Navigation handlers
-  const handleDashboardClick = () => {
-    navigate("/admin/dashboard");
-  };
+  const handleDashboardClick = () => navigate("/admin/dashboard");
+  const handleProfileClick = () => navigate("/admin-profile");
+  const handleStudentVerification = () => navigate("/admin-verification");
+  const handleVenueUpload = () => navigate("/admin/upload-venue");
 
-  const handleProfileClick = () => {
-    navigate("/admin-profile");
-  };
-
-  const handleStudentVerification = () => {
-    navigate("/admin-verification");
-  };
-
-  const handleVenueUpload = () => {
-    navigate("/admin/upload-venue");
-  };
-
-  // --- LOGOUT LOGIC ---
-  const handleLogoutClick = () => {
-    setShowLogoutModal(true);
-  };
-
-  const confirmLogout = () => {
-    navigate("/");
-  };
-
-  const cancelLogout = () => {
-    setShowLogoutModal(false);
-  };
+  // Logout handlers
+  const handleLogoutClick = () => setShowLogoutModal(true);
+  const confirmLogout = () => navigate("/");
+  const cancelLogout = () => setShowLogoutModal(false);
 
   // Form handlers
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    const updatedValue = name === "courseCode" ? value.toUpperCase() : value;
+
+    setFormData(prev => ({
       ...prev,
-      [name]: name === "courseCode" ? value.toUpperCase() : value,
+      [name]: updatedValue,
     }));
+
+    // Clear error for this field if it exists
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+      setErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const allowedTypes = [
-        "application/vnd.ms-excel",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "text/csv",
-      ];
+  const validateFile = (file) => {
+    const allowedTypes = [
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text/csv",
+    ];
 
-      if (
-        !allowedTypes.includes(file.type) &&
-        !file.name.match(/\.(csv|xlsx|xls)$/)
-      ) {
-        setErrors((prev) => ({
-          ...prev,
-          file: "Please upload a CSV or Excel file only",
-        }));
-        return;
-      }
+    const allowedExtensions = /\.(csv|xlsx|xls)$/i;
 
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          file: "File size must be less than 5MB",
-        }));
-        return;
-      }
-
-      setFormData((prev) => ({ ...prev, file }));
-      setErrors((prev) => ({ ...prev, file: "" }));
-
-      // Simulate file preview
-      const mockData = [
-        { regNumber: "CST/21/COM/00750", score: 85, grade: "A" },
-        { regNumber: "CST/21/COM/00751", score: 72, grade: "B" },
-        { regNumber: "CST/21/COM/00752", score: 90, grade: "A" },
-        { regNumber: "CST/21/COM/00753", score: 68, grade: "C" },
-        { regNumber: "CST/21/COM/00754", score: 95, grade: "A" },
-      ];
-      setPreviewData(mockData);
+    // Check file type
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.test(file.name)) {
+      return "Please upload a CSV or Excel file only";
     }
+
+    // Check file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      return "File size must be less than 5MB";
+    }
+
+    return null;
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fileError = validateFile(file);
+    if (fileError) {
+      setErrors(prev => ({ ...prev, file: fileError }));
+      return;
+    }
+
+    setFormData(prev => ({ ...prev, file }));
+    setErrors(prev => ({ ...prev, file: "" }));
+
+
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    e.stopPropagation();
-
-    const file = e.dataTransfer.files[0];
+    const file = e.dataTransfer.files?.[0];
     if (file) {
-      const fakeEvent = {
-        target: { files: [file] },
-      };
+      const fakeEvent = { target: { files: [file] } };
       handleFileChange(fakeEvent);
     }
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    e.stopPropagation();
   };
 
   const downloadTemplate = () => {
-    const templateContent = `CourseTitle,CourseCode,RegNumber,Score,Grade
-Introduction to Computer Science,CST101,CST/21/COM/00750,85,A
-Introduction to Computer Science,CST101,CST/21/COM/00751,72,B
-Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
+    const templateContent = `RegNumber,Score,Grade
+CST/21/COM/00750,85,A
+CST/21/COM/00751,72,B
+CST/21/COM/00752,90,A
+CST/21/COM/00753,68,C
+CST/21/COM/00754,95,A`;
 
-    const blob = new Blob([templateContent], {
-      type: "text/csv;charset=utf-8;",
-    });
+    const blob = new Blob([templateContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "result_upload_template.csv";
-    document.body.appendChild(a);
-    a.click();
-
-    document.body.removeChild(a);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "result_upload_template.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.level) newErrors.level = "Please select a level";
-    if (!formData.department)
-      newErrors.department = "Please select a department";
-    if (!formData.semester) newErrors.semester = "Please select a semester";
-    if (!formData.session) newErrors.session = "Please select a session";
+    if (!formData.level.trim()) newErrors.level = "Please select a level";
+    if (!formData.department.trim()) newErrors.department = "Please select a department";
+    if (!formData.semester.trim()) newErrors.semester = "Please select a semester";
+    if (!formData.session.trim()) newErrors.session = "Please select a session";
     if (!formData.file) newErrors.file = "Please upload a file";
 
     setErrors(newErrors);
@@ -214,14 +202,14 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
       return;
     }
 
-    // Create FormData for API request
+    // Prepare FormData
     const apiFormData = new FormData();
     apiFormData.append("level", formData.level);
     apiFormData.append("department", formData.department);
     apiFormData.append("semester", formData.semester);
     apiFormData.append("session", formData.session);
 
-    if (formData.courseCode && formData.courseCode.trim()) {
+    if (formData.courseCode.trim()) {
       apiFormData.append("courseCode", formData.courseCode.trim());
     }
 
@@ -231,8 +219,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
     setUploadStatus(null);
     setUploadProgress(0);
 
+    // Simulate upload progress
     const progressInterval = setInterval(() => {
-      setUploadProgress((prev) => {
+      setUploadProgress(prev => {
         if (prev >= 90) {
           clearInterval(progressInterval);
           return 90;
@@ -244,33 +233,23 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
     try {
       const response = await uploadResult(apiFormData);
 
-      if (!response.success) {
-        throw new Error(response.message || "Upload failed");
-      }
-
       clearInterval(progressInterval);
       setUploadProgress(100);
 
-      setUploadStatus({
-        type: "success",
-        message: "Results uploaded successfully!",
-        details:
-          response.message || "All results have been saved to the database.",
-      });
-
-      // Reset form after successful upload
-      setTimeout(() => {
-        setFormData({
-          level: "",
-          department: "",
-          semester: "",
-          session: "",
-          courseCode: "",
-          file: null,
+      if (response?.success) {
+        setUploadStatus({
+          type: "success",
+          message: "Results uploaded successfully!",
+          details: response.message || "All results have been processed and saved.",
         });
-        setPreviewData([]);
-        setUploadProgress(0);
-      }, 3000);
+
+        // Reset form after success
+        setTimeout(() => {
+          resetForm();
+        }, 3000);
+      } else {
+        throw new Error(response?.message || "Upload failed");
+      }
     } catch (error) {
       clearInterval(progressInterval);
       setUploadStatus({
@@ -283,7 +262,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
     }
   };
 
-  const handleReset = () => {
+  const resetForm = () => {
     setFormData({
       level: "",
       department: "",
@@ -296,17 +275,26 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
     setErrors({});
     setUploadStatus(null);
     setUploadProgress(0);
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
+
+  // Safe data accessors
+  const safeLevels = Array.isArray(levels) ? levels : [];
+  const safeDepartments = Array.isArray(departments) ? departments : [];
+  const safeSemesters = Array.isArray(semesters) ? semesters : [];
+  const safeSessions = Array.isArray(sessions) ? sessions : [];
 
   return (
     <div className="dashboard-container admin-theme">
-      {/* ======================= */}
-      {/* LOGOUT CONFIRMATION MODAL */}
-      {/* ======================= */}
+      {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <div className="modal-overlay">
           <div className="modal-box">
-            <h3>Log Out?</h3>
+            <h3>Confirm Logout</h3>
             <p>Are you sure you want to log out of your account?</p>
             <div className="modal-actions">
               <button className="btn-cancel" onClick={cancelLogout}>
@@ -320,9 +308,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
         </div>
       )}
 
-      {/* ======================= */}
-      {/* 1. DESKTOP SIDEBAR      */}
-      {/* ======================= */}
+      {/* Desktop Sidebar */}
       <aside className="desktop-sidebar">
         <div className="sidebar-logo">
           <ShieldCheck size={28} />
@@ -342,20 +328,14 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
             <User size={20} />
             <span>Profile</span>
           </div>
-          <div
-            style={{ marginTop: "auto" }}
-            className="sidebar-item"
-            onClick={handleLogoutClick}
-          >
+          <div className="sidebar-item" onClick={handleLogoutClick}>
             <LogOut size={20} />
             <span>Logout</span>
           </div>
         </nav>
       </aside>
 
-      {/* ======================= */}
-      {/* 2. DESKTOP MAIN CONTENT */}
-      {/* ======================= */}
+      {/* Desktop Main Content */}
       <main className="desktop-main">
         {/* Top Bar */}
         <div className="desktop-topbar">
@@ -363,7 +343,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
             <div className="profile-avatar">
               <User size={24} />
             </div>
-            <span className="font-bold text-gray-700">Admin User</span>
+            <span className="profile-name">Admin User</span>
           </div>
         </div>
 
@@ -371,25 +351,25 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
         <div className="welcome-banner">
           <div className="welcome-text">
             <h2>
-              <FileSpreadsheet size={32} style={{ marginRight: "12px" }} />
+              <FileSpreadsheet size={32} />
               Upload Student Results
             </h2>
-            <p className="opacity-90">
-              Upload CSV or Excel files containing student results for a
-              specific course
+            <p className="banner-subtitle">
+              Upload CSV or Excel files containing student results for a specific course
             </p>
           </div>
         </div>
 
-        {/* Upload Form */}
+        {/* Upload Form Section */}
         <div className="upload-content-wrapper">
           <div className="upload-form-section">
             <form onSubmit={handleSubmit}>
+              {/* Form Grid */}
               <div className="form-grid">
                 {/* Level Selection */}
                 <div className="form-group">
                   <label className="form-label">
-                    <GraduationCap size={18} style={{ marginRight: "8px" }} />
+                    <GraduationCap size={18} />
                     Level *
                   </label>
                   <div className="select-wrapper">
@@ -401,9 +381,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                       disabled={isLoading}
                     >
                       <option value="">Select Level</option>
-                      {levels.map((level) => (
-                        <option key={level.id} value={level.id}>
-                          {level.name}
+                      {safeLevels.map((level) => (
+                        <option key={level.id || level._id} value={level.id || level._id}>
+                          {level.name || level.levelName}
                         </option>
                       ))}
                     </select>
@@ -420,7 +400,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                 {/* Department Selection */}
                 <div className="form-group">
                   <label className="form-label">
-                    <Building size={18} style={{ marginRight: "8px" }} />
+                    <Building size={18} />
                     Department *
                   </label>
                   <div className="select-wrapper">
@@ -432,9 +412,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                       disabled={isLoading}
                     >
                       <option value="">Select Department</option>
-                      {departments.map((dept) => (
-                        <option key={dept.id} value={dept.id}>
-                          {dept.name}
+                      {safeDepartments.map((dept) => (
+                        <option key={dept.id || dept._id} value={dept.id || dept._id}>
+                          {dept.name || dept.departmentName}
                         </option>
                       ))}
                     </select>
@@ -460,9 +440,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                       disabled={isLoading}
                     >
                       <option value="">Select Semester</option>
-                      {semesters.map((sem) => (
-                        <option key={sem.id} value={sem.id}>
-                          {sem.name}
+                      {safeSemesters.map((sem) => (
+                        <option key={sem.id || sem._id} value={sem.id || sem._id}>
+                          {sem.name || sem.semesterName}
                         </option>
                       ))}
                     </select>
@@ -479,7 +459,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                 {/* Session Selection */}
                 <div className="form-group">
                   <label className="form-label">
-                    <Calendar size={18} style={{ marginRight: "8px" }} />
+                    <Calendar size={18} />
                     Session *
                   </label>
                   <div className="select-wrapper">
@@ -491,9 +471,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                       disabled={isLoading}
                     >
                       <option value="">Select Session</option>
-                      {sessions.map((session) => (
-                        <option key={session.id} value={session.id}>
-                          {session.name}
+                      {safeSessions.map((session) => (
+                        <option key={session.id || session._id} value={session.id || session._id}>
+                          {session.name || session.sessionName}
                         </option>
                       ))}
                     </select>
@@ -509,7 +489,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
 
                 {/* Course Code */}
                 <div className="form-group full-width">
-                  <label className="form-label">Course Code </label>
+                  <label className="form-label">Course Code (Optional)</label>
                   <input
                     type="text"
                     name="courseCode"
@@ -531,6 +511,13 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                   onClick={() => !isLoading && fileInputRef.current?.click()}
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !isLoading) {
+                      fileInputRef.current?.click();
+                    }
+                  }}
                 >
                   <input
                     ref={fileInputRef}
@@ -552,7 +539,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                           className="remove-file-btn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setFormData((prev) => ({ ...prev, file: null }));
+                            setFormData(prev => ({ ...prev, file: null }));
                             setPreviewData([]);
                           }}
                           disabled={isLoading}
@@ -585,7 +572,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                   onClick={downloadTemplate}
                   disabled={isLoading}
                 >
-                  <Download size={18} style={{ marginRight: "8px" }} />
+                  <Download size={18} />
                   Download Template
                 </button>
               </div>
@@ -595,7 +582,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={handleReset}
+                  onClick={resetForm}
                   disabled={isLoading}
                 >
                   Reset Form
@@ -612,7 +599,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                     </>
                   ) : (
                     <>
-                      <UploadCloud size={18} style={{ marginRight: "8px" }} />
+                      <UploadCloud size={18} />
                       Upload Results
                     </>
                   )}
@@ -638,35 +625,34 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
         </div>
       </main>
 
-      {/* ======================= */}
-      {/* 3. MOBILE APP LAYOUT    */}
-      {/* ======================= */}
+      {/* Mobile Layout */}
       <div className="mobile-layout">
-        <div
-          className="mobile-header"
-          style={{ display: "flex", alignItems: "center" }}
-        >
+        {/* Mobile Header */}
+        <div className="mobile-header">
           <button
             className="hamburger-btn"
             onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Open menu"
           >
             <Menu size={28} />
           </button>
           <h1>Upload Results</h1>
         </div>
 
+        {/* Mobile Profile */}
         <div className="profile-card">
           <div className="profile-avatar">
             <User size={24} />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Welcome, Admin</p>
+            <p className="profile-welcome">Welcome, Admin</p>
           </div>
         </div>
 
         {/* Mobile Form */}
         <div className="upload-content-wrapper mobile">
           <form onSubmit={handleSubmit} className="mobile-form">
+            {/* Level */}
             <div className="form-group">
               <label className="form-label">Level *</label>
               <select
@@ -677,9 +663,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                 disabled={isLoading}
               >
                 <option value="">Select Level</option>
-                {levels.map((level) => (
-                  <option key={level.id} value={level.id}>
-                    {level.name}
+                {safeLevels.map((level) => (
+                  <option key={level.id || level._id} value={level.id || level._id}>
+                    {level.name || level.levelName}
                   </option>
                 ))}
               </select>
@@ -691,6 +677,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               )}
             </div>
 
+            {/* Department */}
             <div className="form-group">
               <label className="form-label">Department *</label>
               <select
@@ -701,9 +688,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                 disabled={isLoading}
               >
                 <option value="">Select Department</option>
-                {departments.map((dept) => (
-                  <option key={dept.id} value={dept.id}>
-                    {dept.name}
+                {safeDepartments.map((dept) => (
+                  <option key={dept.id || dept._id} value={dept.id || dept._id}>
+                    {dept.name || dept.departmentName}
                   </option>
                 ))}
               </select>
@@ -715,6 +702,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               )}
             </div>
 
+            {/* Semester */}
             <div className="form-group">
               <label className="form-label">Semester *</label>
               <select
@@ -725,9 +713,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                 disabled={isLoading}
               >
                 <option value="">Select Semester</option>
-                {semesters.map((sem) => (
-                  <option key={sem.id} value={sem.id}>
-                    {sem.name}
+                {safeSemesters.map((sem) => (
+                  <option key={sem.id || sem._id} value={sem.id || sem._id}>
+                    {sem.name || sem.semesterName}
                   </option>
                 ))}
               </select>
@@ -739,6 +727,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               )}
             </div>
 
+            {/* Session */}
             <div className="form-group">
               <label className="form-label">Session *</label>
               <select
@@ -749,9 +738,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                 disabled={isLoading}
               >
                 <option value="">Select Session</option>
-                {sessions.map((session) => (
-                  <option key={session.id} value={session.id}>
-                    {session.name}
+                {safeSessions.map((session) => (
+                  <option key={session.id || session._id} value={session.id || session._id}>
+                    {session.name || session.sessionName}
                   </option>
                 ))}
               </select>
@@ -763,8 +752,9 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               )}
             </div>
 
+            {/* Course Code */}
             <div className="form-group">
-              <label className="form-label">Course Code </label>
+              <label className="form-label">Course Code (Optional)</label>
               <input
                 type="text"
                 name="courseCode"
@@ -782,6 +772,8 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               <div
                 className={`upload-area ${formData.file ? "has-file" : ""} ${errors.file ? "error" : ""}`}
                 onClick={() => !isLoading && fileInputRef.current?.click()}
+                role="button"
+                tabIndex={0}
               >
                 <input
                   ref={fileInputRef}
@@ -817,12 +809,12 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
               )}
             </div>
 
-            {/* Mobile Actions */}
+            {/* Mobile Action Buttons */}
             <div className="mobile-action-buttons">
               <button
                 type="button"
                 className="btn-secondary"
-                onClick={handleReset}
+                onClick={resetForm}
                 disabled={isLoading}
               >
                 Reset
@@ -847,6 +839,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
             </div>
           </form>
 
+          {/* Mobile Status Message */}
           {uploadStatus && (
             <div className={`status-message ${uploadStatus.type}`}>
               {uploadStatus.type === "success" ? (
@@ -862,12 +855,10 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
           )}
         </div>
 
-        {/* SLIDE OUT MOBILE MENU */}
-        <div
-          className={`mobile-sidebar-overlay ${isMobileMenuOpen ? "open" : ""}`}
-        >
+        {/* Mobile Sidebar Menu */}
+        <div className={`mobile-sidebar-overlay ${isMobileMenuOpen ? "open" : ""}`}>
           <div
-            style={{ position: "absolute", width: "100%", height: "100%" }}
+            className="overlay-backdrop"
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
@@ -875,11 +866,12 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
             <button
               className="close-menu-btn"
               onClick={() => setIsMobileMenuOpen(false)}
+              aria-label="Close menu"
             >
               <X size={28} />
             </button>
 
-            <div className="sidebar-logo" style={{ marginBottom: "30px" }}>
+            <div className="sidebar-logo">
               <ShieldCheck size={28} />
               <span>Admin Portal</span>
             </div>
@@ -897,11 +889,7 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
                 <User size={20} />
                 <span>Profile</span>
               </div>
-              <div
-                style={{ marginTop: "auto" }}
-                className="sidebar-item"
-                onClick={handleLogoutClick}
-              >
+              <div className="sidebar-item" onClick={handleLogoutClick}>
                 <LogOut size={20} />
                 <span>Logout</span>
               </div>

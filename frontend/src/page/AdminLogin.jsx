@@ -19,7 +19,7 @@ const AdminLogin = () => {
       alert("Please enter your Admin User ID");
       return;
     }
-    navigate('/admin-dashboard');
+    navigate('/admin/dashboard');
   };
 
   const handleStudentLogin = () => {

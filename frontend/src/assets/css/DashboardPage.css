@@ -1,15 +1,15 @@
-/* DashboardPage.css */ 
- 
-/* --- GLOBAL LAYOUT --- */ 
-.dashboard-container { 
-  min-height: 100vh; 
-  width: 100%; 
-  background-color: #f3f4f6; 
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-} 
- 
-/* --- MOBILE VIEW (Default) --- */ 
-/* This mimics the "Phone App" look */ 
+/* DashboardPage.css */
+
+/* --- GLOBAL LAYOUT --- */
+.dashboard-container {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f3f4f6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* --- MOBILE VIEW (Default) --- */
+/* This mimics the "Phone App" look */
 
 /* The Button itself */
 .hamburger-btn {
@@ -18,7 +18,7 @@
   cursor: pointer;
   color: #334155;
   padding: 8px;
-  margin-right: 8px; 
+  margin-right: 8px;
 }
 
 /* The Sliding Drawer Container */
@@ -28,7 +28,7 @@
   left: 0;
   width: 100%;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); 
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
@@ -42,13 +42,13 @@
 
 /* The actual menu content */
 .mobile-sidebar-content {
-  width: 280px; 
+  width: 280px;
   height: 100%;
   /* Default Student Gradient */
-  background: linear-gradient(to bottom, #0e7490, #1e40af); 
+  background: linear-gradient(to bottom, #0e7490, #1e40af);
   color: white;
   padding: 30px;
-  transform: translateX(-100%); 
+  transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
@@ -62,248 +62,248 @@
   background: none;
   border: none;
   color: white;
-  align-self: flex-end; 
+  align-self: flex-end;
   margin-bottom: 20px;
   cursor: pointer;
 }
 
 .sidebar-item:active {
-  background-color: rgba(255, 255, 255, 0.3); 
-  transform: scale(0.98); 
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(0.98);
 }
 
 .sidebar-logo {
   display: flex;
-  align-items: center;  
-  gap: 20px;            
+  align-items: center;
+  gap: 20px;
   font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 40px;  
-  line-height: 1;       
+  margin-bottom: 40px;
+  line-height: 1;
 }
 
-.mobile-layout { 
-  display: flex; 
-  flex-direction: column; 
-  padding: 20px; 
-} 
- 
-.desktop-sidebar { 
-  display: none; 
-} 
- 
-/* Header Section (Mobile) */ 
-.mobile-header { 
-  margin-bottom: 24px; 
-} 
-.mobile-header h1 { 
-  font-size: 1.8rem; 
-  color: #0891b2; 
-  font-weight: bold; 
-} 
- 
-/* Profile Card (Mobile) */ 
-.profile-card { 
-  display: flex; 
-  align-items: center; 
-  background-color: white; 
-  padding: 16px; 
-  border-radius: 16px; 
-  margin-bottom: 30px; 
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-} 
- 
-.profile-avatar { 
-  width: 50px; 
-  height: 50px; 
-  background-color: #334155; 
-  border-radius: 8px; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  margin-right: 15px; 
-  color: white; 
-} 
- 
-/* Grid for Action Buttons */ 
-.action-grid { 
-  display: grid; 
+.mobile-layout {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.desktop-sidebar {
+  display: none;
+}
+
+/* Header Section (Mobile) */
+.mobile-header {
+  margin-bottom: 24px;
+}
+.mobile-header h1 {
+  font-size: 1.8rem;
+  color: #0891b2;
+  font-weight: bold;
+}
+
+/* Profile Card (Mobile) */
+.profile-card {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.profile-avatar {
+  width: 50px;
+  height: 50px;
+  background-color: #334155;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  color: white;
+}
+
+/* Grid for Action Buttons */
+.action-grid {
+  display: grid;
   flex-wrap: wrap;
-  gap: 24px; 
+  gap: 24px;
   width: 100%;
 }
 
-.action-card { 
-  background-color: white; 
-  padding: 24px; 
-  border-radius: 16px; 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  text-align: center; 
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-  cursor: pointer; 
-  transition: transform 0.2s, box-shadow 0.2s; 
-  border: 1px solid transparent; 
-} 
- 
-.action-card:hover { 
-  transform: translateY(-5px); 
-  border-color: #06b6d4; 
-  box-shadow: 0 10px 15px rgba(6, 182, 212, 0.15); 
-} 
- 
-.card-icon { 
-  margin-bottom: 12px; 
-} 
- 
-.card-title { 
-  font-weight: 600; 
-  color: #334155; 
-  font-size: 0.9rem; 
-} 
+.action-card {
+  background-color: white;
+  padding: 24px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid transparent;
+}
+
+.action-card:hover {
+  transform: translateY(-5px);
+  border-color: #06b6d4;
+  box-shadow: 0 10px 15px rgba(6, 182, 212, 0.15);
+}
+
+.card-icon {
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.9rem;
+}
 
 .sidebar-menu {
   display: flex;
   flex-direction: column;
-  gap: 32px; 
-  margin-top: 20px; 
+  gap: 32px;
+  margin-top: 20px;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
-  gap: 16px; 
-  padding: 10px 0; 
-  font-size: 1.1rem; 
+  gap: 16px;
+  padding: 10px 0;
+  font-size: 1.1rem;
   cursor: pointer;
 }
- 
- 
-/* --- DESKTOP VIEW (Screens larger than 768px) --- */ 
-@media (min-width: 769px) { 
-   
-  .dashboard-container { 
-    display: flex; 
-    background-color: #f8fafc; 
-  } 
- 
-  /* 1. SIDEBAR */ 
-  .desktop-sidebar { 
-    display: flex; 
-    flex-direction: column; 
-    width: 260px; 
+
+
+/* --- DESKTOP VIEW (Screens larger than 768px) --- */
+@media (min-width: 769px) {
+
+  .dashboard-container {
+    display: flex;
+    background-color: #f8fafc;
+  }
+
+  /* 1. SIDEBAR */
+  .desktop-sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 260px;
     /* Student Gradient (Default) */
-    background: linear-gradient(to bottom, #0e7490, #1e40af); 
-    color: white; 
-    padding: 30px; 
-    height: 100vh; 
-    position: sticky; 
-    top: 0; 
-  } 
- 
-  .sidebar-logo { 
-    font-size: 1.5rem; 
-    font-weight: bold; 
-    margin-bottom: 50px; 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
+    background: linear-gradient(to bottom, #0e7490, #1e40af);
+    color: white;
+    padding: 30px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+  }
+
+  .sidebar-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin-top: 30px;
-  } 
- 
-  .sidebar-menu { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 15px; 
-  } 
- 
-  .sidebar-item { 
-    display: flex; 
-    align-items: center; 
-    gap: 12px; 
-    padding: 12px; 
-    border-radius: 10px; 
-    cursor: pointer; 
-    transition: background 0.2s; 
-    opacity: 0.8; 
-  } 
- 
-  .sidebar-item:hover, .sidebar-item.active { 
-    background-color: rgba(255, 255, 255, 0.15); 
-    opacity: 1; 
-  } 
- 
-  /* 2. MAIN CONTENT AREA */ 
-  .mobile-layout { 
-    display: none; 
-  } 
- 
-  .desktop-main { 
-    flex: 1; 
-    padding: 40px; 
-    overflow-y: auto; 
-  } 
- 
-  /* Top Header with Search */ 
-  .desktop-topbar { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 40px; 
-  } 
- 
-  .search-bar { 
-    background: white; 
-    padding: 10px 20px; 
-    border-radius: 99px; 
-    width: 300px; 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-    border: 1px solid #e2e8f0; 
-  } 
- 
-  .top-profile { 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
+  }
+
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    opacity: 0.8;
+  }
+
+  .sidebar-item:hover, .sidebar-item.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    opacity: 1;
+  }
+
+  /* 2. MAIN CONTENT AREA */
+  .mobile-layout {
+    display: none;
+  }
+
+  .desktop-main {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+  }
+
+  /* Top Header with Search */
+  .desktop-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+
+  .search-bar {
+    background: white;
+    padding: 10px 20px;
+    border-radius: 99px;
+    width: 300px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+  }
+
+  .top-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     /* Optional: Add background/padding to look more like a card */
     background: white;
     padding: 8px 16px;
     border-radius: 50px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  } 
- 
-  /* Welcome Banner (Student Default) */ 
-  .welcome-banner { 
-    background: linear-gradient(to right, #a855f7, #6366f1); /* Purple to Indigo */ 
-    border-radius: 24px; 
-    padding: 40px; 
-    color: white; 
-    margin-bottom: 40px; 
-    position: relative; 
-    overflow: hidden; 
-  } 
- 
-  .welcome-text h2 { 
-    font-size: 2rem; 
-    font-weight: bold; 
-    margin-bottom: 8px; 
-  } 
- 
-  .action-grid { 
+  }
+
+  /* Welcome Banner (Student Default) */
+  .welcome-banner {
+    background: linear-gradient(to right, #a855f7, #6366f1); /* Purple to Indigo */
+    border-radius: 24px;
+    padding: 40px;
+    color: white;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .welcome-text h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .action-grid {
     display: grid;
     grid-template-columns: 1fr 1fr; /* Default 2 columns for students */
-    gap: 24px; 
+    gap: 24px;
     width: 100%;
-  } 
-   
-  .action-card { 
+  }
+
+  .action-card {
     padding: 40px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center; 
-  } 
+    align-items: center;
+  }
 
   .card-icon {
     transform: scale(1.0);
@@ -313,13 +313,13 @@
   .card-title {
     font-size: 1.0rem;
   }
-} 
- 
-/* Helper to hide desktop main on mobile */ 
-@media (max-width: 768px) { 
-  .desktop-main { 
-    display: none; 
-  } 
+}
+
+/* Helper to hide desktop main on mobile */
+@media (max-width: 768px) {
+  .desktop-main {
+    display: none;
+  }
 }
 
 /* ========================================= */
@@ -345,9 +345,9 @@
 }
 
 /* Admin Hover Colors */
-.admin-theme .action-card:hover { 
-  border-color: #059669; 
-  box-shadow: 0 10px 15px rgba(5, 150, 105, 0.15); 
+.admin-theme .action-card:hover {
+  border-color: #059669;
+  box-shadow: 0 10px 15px rgba(5, 150, 105, 0.15);
 }
 
 /* ========================================= */
@@ -362,11 +362,11 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  
+
   /* FIXED: Make it wider on desktop */
-  width: 100%; 
+  width: 100%;
   max-width: 700px; /* Increased from 500px to 700px */
-  margin: 0 auto; 
+  margin: 0 auto;
 }
 /* Make the Input Box Larger and Nicer */
 .venue-input {
@@ -629,13 +629,13 @@
 /* --- LOGOUT MODAL STYLES --- */
 .modal-overlay {
   position: fixed;
-  top: 0; 
-  left: 0; 
-  width: 100%; 
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5); /* Dimmed background */
-  display: flex; 
-  justify-content: center; 
+  display: flex;
+  justify-content: center;
   align-items: center;
   z-index: 2000; /* Sit on top of everything */
   animation: fadeIn 0.2s ease-in-out;
@@ -757,3 +757,25 @@
 .grade-C { background-color: #fef9c3; color: #854d0e; } /* Yellow */
 .grade-D { background-color: #ffedd5; color: #9a3412; } /* Orange */
 .grade-F { background-color: #fee2e2; color: #991b1b; } /* Red */
+
+/* Add to your existing DashboardPage.css */
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* For mobile profile card */
+.mobile-layout .profile-avatar {
+  width: 50px;
+  height: 50px;
+  font-size: 18px;
+}

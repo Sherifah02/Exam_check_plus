@@ -1,14 +1,16 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom'
+import React from "react";
+import { Outlet } from "react-router-dom";
+import SessionChecker from "../hook/SessionChecker";
 
 const Layout = () => {
   return (
     <div>
       <main>
-        <Outlet/>
+        <SessionChecker />
+        <Outlet />
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

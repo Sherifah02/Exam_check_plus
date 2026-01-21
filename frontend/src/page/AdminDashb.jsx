@@ -1,64 +1,49 @@
 import "../assets/css/DashboardPage.css";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
-  User, Menu, ShieldCheck,
-  LayoutDashboard, Settings, LogOut, Bell,
-  UploadCloud, FileText, X
-} from 'lucide-react';
+  User,
+  Menu,
+  ShieldCheck,
+  LayoutDashboard,
+  Settings,
+  LogOut,
+  Bell,
+  UploadCloud,
+  FileText,
+  X,
+} from "lucide-react";
 
-import { useState, useRef } from 'react';
+import { useState, useRef } from "react";
 
 const AdminDashb = () => {
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const venueInputRef = useRef(null);
-  const resultInputRef = useRef(null);
-
   const handleVenueClick = () => {
-    venueInputRef.current.click();
+    navigate("/admin/upload-venue");
   };
 
   const handleResultClick = () => {
-    resultInputRef.current.click();
-  };
-
-  const handleVenueFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      console.log("Venue File Selected:", file.name);
-      // TODO: Add your logic here to send 'file' to your backend
-      alert(`Venue file "${file.name}" ready for upload.`);
-    }
-  };
-
-  const handleResultFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      console.log("Result File Selected:", file.name);
-      // TODO: Add your logic here to send 'file' to your backend
-      alert(`Result file "${file.name}" ready for upload.`);
-    }
+    navigate("/admin/result-upload");
   };
 
   const actions = [
     {
       title: "Student Verification",
       icon: <User size={32} color="#0284c7" />,
-      onClick: () => navigate('/admin-verification')
+      onClick: () => navigate("/admin/verification"),
     },
     {
       title: "Venue Upload",
       icon: <UploadCloud size={32} color="#059669" />,
-      onClick: handleVenueClick // Triggers the venue file input
+      onClick: handleVenueClick, // Triggers the venue file input
     },
     {
       title: "Result Upload",
       icon: <FileText size={32} color="#ea580c" />,
-      onClick: handleResultClick // Triggers the result file input
+      onClick: handleResultClick, // Triggers the result file input
     },
   ];
 
@@ -68,7 +53,7 @@ const AdminDashb = () => {
   };
 
   const confirmLogout = () => {
-    navigate('/');
+    navigate("/");
   };
 
   const cancelLogout = () => {
@@ -77,7 +62,6 @@ const AdminDashb = () => {
 
   return (
     <div className="dashboard-container admin-theme">
-
       {/* ======================= */}
       {/* LOGOUT CONFIRMATION MODAL */}
       {/* ======================= */}
@@ -87,30 +71,16 @@ const AdminDashb = () => {
             <h3>Log Out?</h3>
             <p>Are you sure you want to log out of your account?</p>
             <div className="modal-actions">
-              <button className="btn-cancel" onClick={cancelLogout}>Cancel</button>
-              <button className="btn-confirm" onClick={confirmLogout}>Log Out</button>
+              <button className="btn-cancel" onClick={cancelLogout}>
+                Cancel
+              </button>
+              <button className="btn-confirm" onClick={confirmLogout}>
+                Log Out
+              </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* ======================= */}
-      {/* HIDDEN FILE INPUTS      */}
-      {/* ======================= */}
-      <input
-        type="file"
-        ref={venueInputRef}
-        style={{ display: 'none' }}
-        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-        onChange={handleVenueFileChange}
-      />
-      <input
-        type="file"
-        ref={resultInputRef}
-        style={{ display: 'none' }}
-        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-        onChange={handleResultFileChange}
-      />
 
       {/* ======================= */}
       {/* 1. DESKTOP SIDEBAR      */}
@@ -126,17 +96,23 @@ const AdminDashb = () => {
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
           </div>
-          <div className="sidebar-item" onClick={() => navigate('/admin-profile')}>
+          <div
+            className="sidebar-item"
+            onClick={() => navigate("/admin/profile")}
+          >
             <User size={20} />
             <span>Profile</span>
-            </div>
-          <div style= {{ marginTop: 'auto' }} className="sidebar-item" onClick={handleLogoutClick} >
+          </div>
+          <div
+            style={{ marginTop: "auto" }}
+            className="sidebar-item"
+            onClick={handleLogoutClick}
+          >
             <LogOut size={20} />
             <span>Logout</span>
           </div>
         </nav>
       </aside>
-
 
       {/* ======================= */}
       {/* 2. DESKTOP MAIN CONTENT */}
@@ -144,7 +120,6 @@ const AdminDashb = () => {
       <main className="desktop-main">
         {/* Top Bar */}
         <div className="desktop-topbar">
-
           {/* Profile on the Left */}
           <div className="top-profile">
             <div className="profile-avatar">
@@ -158,18 +133,16 @@ const AdminDashb = () => {
         <div className="welcome-banner">
           <div className="welcome-text">
             <h2>Admin Dashboard</h2>
-            <p className="opacity-90">Manage student data, venues, and results.</p>
+            <p className="opacity-90">
+              Manage student data, venues, and results.
+            </p>
           </div>
         </div>
 
         {/* Action Grid (The 3 Buttons) */}
         <div className="action-grid">
           {actions.map((item, index) => (
-            <div
-              key={index}
-              className="action-card"
-              onClick={item.onClick}
-            >
+            <div key={index} className="action-card" onClick={item.onClick}>
               <div className="card-icon">{item.icon}</div>
               <span className="card-title">{item.title}</span>
             </div>
@@ -177,17 +150,19 @@ const AdminDashb = () => {
         </div>
       </main>
 
-
       {/* ======================= */}
       {/* 3. MOBILE APP LAYOUT    */}
       {/* ======================= */}
       <div className="mobile-layout">
-        <div className="mobile-header" style={{display:'flex', alignItems:'center'}}>
+        <div
+          className="mobile-header"
+          style={{ display: "flex", alignItems: "center" }}
+        >
           <button
             className="hamburger-btn"
             onClick={() => setIsMobileMenuOpen(true)}
           >
-          <Menu size={28}/>
+            <Menu size={28} />
           </button>
           <h1>Admin Portal</h1>
         </div>
@@ -203,11 +178,7 @@ const AdminDashb = () => {
 
         <div className="action-grid">
           {actions.map((item, index) => (
-            <div
-              key={index}
-              className="action-card"
-              onClick={item.onClick}
-            >
+            <div key={index} className="action-card" onClick={item.onClick}>
               <div className="card-icon">{item.icon}</div>
               <span className="card-title">{item.title}</span>
             </div>
@@ -215,43 +186,52 @@ const AdminDashb = () => {
         </div>
 
         {/* SLIDE OUT MOBILE MENU */}
-        <div className= {`mobile-sidebar-overlay ${isMobileMenuOpen? 'open' : ''}`}>
         <div
-         style={{position:'absolute', width:'100%', height:'100%'}}
-         onClick={() => setIsMobileMenuOpen(false)} />
+          className={`mobile-sidebar-overlay ${isMobileMenuOpen ? "open" : ""}`}
+        >
+          <div
+            style={{ position: "absolute", width: "100%", height: "100%" }}
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
 
-        <div className="mobile-sidebar-content">
-         <button
-          className="close-menu-btn"
-          onClick={() => setIsMobileMenuOpen(false)}
-         >
-         <X size={28}/>
-         </button>
+          <div className="mobile-sidebar-content">
+            <button
+              className="close-menu-btn"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <X size={28} />
+            </button>
 
-        <div className="sidebar-logo" style={{marginBottom: "30px"}}>
-          <ShieldCheck size={28} />
-          <span>Admin Portal</span>
-        </div>
+            <div className="sidebar-logo" style={{ marginBottom: "30px" }}>
+              <ShieldCheck size={28} />
+              <span>Admin Portal</span>
+            </div>
 
-        <nav className="sidebar-menu">
-          <div className="sidebar-item active">
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
+            <nav className="sidebar-menu">
+              <div className="sidebar-item active">
+                <LayoutDashboard size={20} />
+                <span>Dashboard</span>
+              </div>
+              <div
+                className="sidebar-item"
+                onClick={() => navigate("/admin/profile")}
+              >
+                <User size={20} />
+                <span>Profile</span>
+              </div>
+              <div
+                style={{ marginTop: "auto" }}
+                className="sidebar-item"
+                onClick={handleLogoutClick}
+              >
+                <LogOut size={20} />
+                <span>Logout</span>
+              </div>
+            </nav>
           </div>
-          <div className="sidebar-item" onClick={() => navigate('/admin-profile')}>
-           <User size={20} />
-           <span>Profile</span>
-          </div>
-          <div style= {{ marginTop: 'auto' }} className="sidebar-item" onClick={handleLogoutClick}>
-            <LogOut size={20} />
-            <span>Logout</span>
-          </div>
-        </nav>
-        </div>
         </div>
       </div>
-
     </div>
-);
+  );
 };
 export default AdminDashb;

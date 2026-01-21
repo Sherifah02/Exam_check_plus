@@ -6,6 +6,7 @@ import {
   createRoutesFromElements,
   RouterProvider,
 } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import LoginPage from "./page/LoginPage";
 import AdminLogin from "./page/AdminLogin";
 import SignUp from "./page/SignUp";
@@ -18,27 +19,88 @@ import AdminProfile from "./page/AdminProfile";
 import AdminVerification from "./page/AdminVerification";
 import ResultCheck from "./page/ResultCheck";
 import Layout from "./root/Layout";
+import ProtectedRoute from "./hook/ProtectedRoute";
+import GuestRoute from "./hook/GuestRoute";
+import ResultUploadPage from "./page/ResultUploadPage";
 
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<Layout />}>
-        <Route index element={<LoginPage />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/admin-dashboard" element={<AdminDashb />} />
+        <Route
+          index
+          element={
+            <GuestRoute>
+              <LoginPage />
+            </GuestRoute>
+          }
+        />
+        <Route
+          path="/admin/login"
+          element={
+            <GuestRoute>
+              <AdminLogin />
+            </GuestRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <GuestRoute>
+              <SignUp />
+            </GuestRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute requiredRole={["student"]}>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            // <ProtectedRoute requiredRole={["admin"]}>
+            <AdminDashb />
+            // </ProtectedRoute>
+          }
+        />
         <Route path="/venue-check" element={<VenueCheck />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute requiredRole={["student"]}>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/admin-profile" element={<AdminProfile />} />
-        <Route path="/admin-verification" element={<AdminVerification />} />
-        <Route path="/result-check" element={<ResultCheck />} />
-      </Route>
-    )
+        <Route
+          path="/admin/profile"
+          element={
+            // <ProtectedRoute requiredRole={["admin"]}>
+            <AdminProfile />
+            // </ProtectedRoute>
+          }
+        />
+        <Route path="/admin/verification" element={<AdminVerification />} />
+        <Route path="/admin/result-upload" element={<ResultUploadPage />} />
+        <Route
+          path="/result-check"
+          element={
+            <ProtectedRoute requiredRole={["student"]}>
+              <ResultCheck />
+            </ProtectedRoute>
+          }
+        />
+      </Route>,
+    ),
   );
   return (
     <>
+      <ToastContainer />
       <RouterProvider router={router} />
     </>
   );

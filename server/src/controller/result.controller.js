@@ -10,13 +10,14 @@ import { Result } from '../model/Result.js';
 
 export const addResult = async (req, res) => {
   const { level, department, semester, session, courseCode } = req.body;
-
+  console.table({ level, department, semester, session, courseCode })
   if (!req.file) {
     return res.status(400).json({
       success: false,
       message: "No file provided"
     });
   }
+  console.log(req.file)
 
   try {
 
@@ -54,7 +55,7 @@ export const addResult = async (req, res) => {
     const result_data = await File.read(req);
 
     if (!result_data.length) {
-      fs.unlinkSync(req.file.path);
+      fs.unlinkSync(req.result_file.path);
       return res.status(400).json({
         success: false,
         message: "No records found in the CSV provided"
@@ -66,7 +67,7 @@ export const addResult = async (req, res) => {
 
     // Create ResultBatch
     const result_batch = await ResultBatch.create({
-      upload_by: req.user?.id || null, // or admin ID
+      // upload_by: req.user?.id || null, // or admin ID
       department_id: department_exist.id,
       level_id: level_exist.id,
       semester_id: semester_exist.id,

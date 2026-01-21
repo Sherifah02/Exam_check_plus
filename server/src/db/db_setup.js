@@ -163,7 +163,7 @@ export const createTables = async () => {
       CREATE TABLE IF NOT EXISTS academic.results (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         batch_id UUID REFERENCES academic.result_batches(id) ON DELETE CASCADE,
-        reg_number UUID REFERENCES academic.students(reg_number) ON DELETE CASCADE,
+        reg_number TEXT REFERENCES academic.students(reg_number) ON DELETE CASCADE,
         course_id UUID REFERENCES academic.courses(id) ON DELETE CASCADE,
         score INT CHECK (score >= 0 AND score <= 100),
         grade VARCHAR(2),

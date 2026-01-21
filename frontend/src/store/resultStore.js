@@ -21,6 +21,7 @@ export const useResultStore = create((set, get) => ({
         return { success: false }
       }
       set({ loadingResult: false, resultError: null, resultSuccess: data.message })
+      toast.success(data.success)
       return { success: true }
     } catch (error) {
       const errMsg =

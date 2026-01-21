@@ -197,7 +197,8 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
     const newErrors = {};
 
     if (!formData.level) newErrors.level = "Please select a level";
-    if (!formData.department) newErrors.department = "Please select a department";
+    if (!formData.department)
+      newErrors.department = "Please select a department";
     if (!formData.semester) newErrors.semester = "Please select a semester";
     if (!formData.session) newErrors.session = "Please select a session";
     if (!formData.file) newErrors.file = "Please upload a file";
@@ -215,13 +216,13 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
 
     // Create FormData for API request
     const apiFormData = new FormData();
-    apiFormData.append("level_id", formData.level);
-    apiFormData.append("department_id", formData.department);
-    apiFormData.append("semester_id", formData.semester);
-    apiFormData.append("session_id", formData.session);
+    apiFormData.append("level", formData.level);
+    apiFormData.append("department", formData.department);
+    apiFormData.append("semester", formData.semester);
+    apiFormData.append("session", formData.session);
 
     if (formData.courseCode && formData.courseCode.trim()) {
-      apiFormData.append("course_code", formData.courseCode.trim());
+      apiFormData.append("courseCode", formData.courseCode.trim());
     }
 
     apiFormData.append("result_file", formData.file);
@@ -253,7 +254,8 @@ Introduction to Computer Science,CST101,CST/21/COM/00752,90,A`;
       setUploadStatus({
         type: "success",
         message: "Results uploaded successfully!",
-        details: response.message || "All results have been saved to the database.",
+        details:
+          response.message || "All results have been saved to the database.",
       });
 
       // Reset form after successful upload

@@ -58,6 +58,15 @@ export const seedStudents = async () => {
       level: "400 Level",
       phone_number: "09098765432",
     },
+    {
+      reg_number: "CST/21/COM/00738",
+      first_name: "Fatima",
+      last_name: "Yusuf",
+      email: "sherifaabdul45@gmail.com",
+      department: "Electrical Engineering",
+      level: "400 Level",
+      phone_number: "09098765432",
+    },
   ];
 
   try {

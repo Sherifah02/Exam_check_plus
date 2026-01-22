@@ -39,7 +39,7 @@ export class Level {
         WHERE name = $1;
       `;
       const result = await pool.query(query, [name]);
-      return result.rows.length ? result.rows : [];
+      return result.rows.length ? result.rows[0] : null;
     } catch (error) {
       throw error;
     }

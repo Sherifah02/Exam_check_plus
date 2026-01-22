@@ -10,21 +10,26 @@ export class User extends Person {
     this.student_id = props.student_id;
     this.id = props.id;
     this.password_hash = props.password_hash;
-    this.user_type = props.user_type;
-    this.expires_at = props.expires_at
+    this.role = props.role || "student";
+    this.expires_at = props.expires_at;
   }
 
   async save(client = pool) {
     try {
-      const query = ` INSERT INTO auth.users(student_id, password_hash, role,expires_at) VALUES ($1, $2, $3, $4)`;
-      const value = [this.student_id, this.password_hash, this.user_type, this.expires_at];
-      const result = await pool.query(query, value);
+      const query = `
+        INSERT INTO auth.users(student_id, password_hash, role, expires_at)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *;
+      `;
+      const values = [this.student_id, this.password_hash, this.role, this.expires_at];
+      const result = await client.query(query, values);
       return result.rows[0];
     } catch (error) {
       throw error;
     }
   }
-  static async find(option = {}) {
+
+  static async find(option = {}, client = pool) {
     try {
       const fields = [];
       const values = [];
@@ -36,18 +41,12 @@ export class User extends Person {
         index++;
       }
 
-      if (fields.length === 0) {
-        throw new Error("No fields provided for search");
-      }
+      if (!fields.length) throw new Error("No fields provided for search");
 
-      const query = `SELECT * FROM auth.users WHERE ${fields.join(
-        " AND ",
-      )} LIMIT 1`;
-      const result = await pool.query(query, values);
+      const query = `SELECT * FROM auth.users WHERE ${fields.join(" AND ")} LIMIT 1`;
+      const result = await client.query(query, values);
 
-      if (result.rowCount === 0) {
-        return { success: false, message: "User not found" };
-      }
+      if (result.rowCount === 0) return { success: false, message: "User not found" };
 
       return { success: true, user: result.rows[0] };
     } catch (error) {
@@ -55,66 +54,65 @@ export class User extends Person {
       throw error;
     }
   }
+
   static async findById(id, client = pool) {
     try {
       const query = `
-      SELECT
-        u.id AS user_id,
-        u.password_hash,
-       u.role,
-       u.expires_at,
-        u.created_at AS user_created_at,
-        s.id AS student_id,
-        s.reg_number,
-        s.first_name,
-        s.last_name,
-        s.email,
-        s.department,
-        s.year_of_study
-      FROM auth.users u
-      INNER JOIN academic.students s
-        ON u.student_id = s.id
-      WHERE u.id = $1
-      LIMIT 1;
-    `;
-
+        SELECT
+          u.id AS user_id,
+          u.password_hash,
+          u.role,
+          u.expires_at,
+          u.created_at AS user_created_at,
+          s.id AS student_id,
+          s.reg_number,
+          s.first_name,
+          s.last_name,
+          s.email,
+          s.phone_number,
+          s.department_id,
+          s.level_id,
+          d.name AS department,
+          l.name AS level
+        FROM auth.users u
+        INNER JOIN academic.students s ON u.student_id = s.id
+        LEFT JOIN academic.departments d ON d.id = s.department_id
+        LEFT JOIN academic.levels l ON l.id = s.level_id
+        WHERE u.id = $1
+        LIMIT 1;
+      `;
       const result = await client.query(query, [id]);
-
-      if (result.rows.length === 0) return null;
-      return result.rows[0];
+      return result.rows[0] || null;
     } catch (error) {
       console.error("Error finding user by ID:", error.message);
       throw error;
     }
   }
+
   static async findByRegNum(reg_number, client = pool) {
     try {
       const query = `
-      SELECT
-        u.id AS user_id,
-        u.password_hash,
-       u.role,
-       u.expires_at,
-        u.created_at AS user_created_at,
-        s.id AS student_id,
-        s.reg_number,
-        s.first_name,
-        s.last_name,
-        s.email,
-        s.department,
-        s.year_of_study
-      FROM auth.users u
-      INNER JOIN academic.students s
-        ON u.student_id = s.id
-      WHERE s.reg_number = $1
-      LIMIT 1;
-    `;
-
+        SELECT
+          u.id AS user_id,
+          u.password_hash,
+          u.role,
+          u.expires_at,
+          u.created_at AS user_created_at,
+          s.id AS student_id,
+          s.reg_number,
+          s.first_name,
+          s.last_name,
+          s.email,
+          s.phone_number,
+          s.department_id,
+          s.level_id
+        FROM auth.users u
+        INNER JOIN academic.students s ON u.student_id = s.id
+        WHERE s.reg_number = $1
+        LIMIT 1;
+      `;
       const result = await client.query(query, [reg_number]);
-
-      if (result.rowCount === 0) return null;
-
-      return result.rows[0];
+      return result.rows[0] || null;
     } catch (error) {
       console.error("Error finding user by reg number:", error.message);
       throw error;
@@ -123,73 +121,26 @@ export class User extends Person {
 
   static async findAll(client = pool) {
     try {
-      const query = `
-        SELECT *
-        FROM auth.users
-        ORDER BY id ASC;
-      `;
-
-      const result = await client.query(query);
-
+      const result = await client.query(`SELECT * FROM auth.users ORDER BY id ASC`);
       return result.rows;
     } catch (error) {
       console.error("Error fetching all users:", error.message);
       throw error;
     }
   }
-  async delete(client = pool, id) {
+
+  async delete(id, client = pool) {
     try {
-      const query = `
-        DELETE FROM auth.users
-        WHERE id = $1
-        RETURNING *;
-      `;
-
+      const query = `DELETE FROM auth.users WHERE id = $1 RETURNING *`;
       const result = await client.query(query, [id]);
-
-      if (result.rows.length === 0) return null;
-      return result.rows[0];
+      return result.rows[0] || null;
     } catch (error) {
       console.error("Error deleting user:", error.message);
       throw error;
     }
   }
-  async suspend(client = pool, id) {
-    try {
-      const query = `
-        UPDATE auth.users
-        SET account_status = 'suspended', updated_at = NOW()
-        WHERE id = $1
-        RETURNING *;
-      `;
 
-      const result = await client.query(query, [id]);
-
-      if (result.rows.length === 0) return null;
-      return result.rows[0];
-    } catch (error) {
-      console.error("Error suspending user:", error.message);
-      throw error;
-    }
-  }
-  static async findByEmail(email, client = pool) {
-    try {
-      const query = `
-        SELECT *
-        FROM auth.users
-        WHERE email = $1;
-      `;
-
-      const result = await client.query(query, [email]);
-
-      if (result.rows.length === 0) return null;
-      return result.rows[0];
-    } catch (error) {
-      console.error("Error finding user by email:", error.message);
-      throw error;
-    }
-  }
-  static async update(id, option = {}) {
+  static async update(id, option = {}, client = pool) {
     try {
       const fields = [];
       const values = [];
@@ -200,71 +151,38 @@ export class User extends Person {
         values.push(value);
         index++;
       }
-      if (fields.length === 0) {
-        throw new Error("No fields provided for update");
-      }
-      if (!id) {
-        throw new Error("No user id found");
-      }
+
+      if (!fields.length) throw new Error("No fields provided for update");
+      if (!id) throw new Error("No user id provided");
+
       values.push(id);
-      const query = `UPDATE auth.users
-      SET ${fields.join(", ")}
-      WHERE id = $${index} RETURNING *
+      const query = `
+        UPDATE auth.users
+        SET ${fields.join(", ")}
+        WHERE id = $${index}
+        RETURNING *;
       `;
-      const result = await pool.query(query, values);
-      return result.rows[0];
+      const result = await client.query(query, values);
+      return result.rows[0] || null;
     } catch (error) {
       throw error;
     }
   }
-  static async generatePasswordResetToken(email) {
-    const token = crypto.randomBytes(32).toString("hex");
-    const expires_at = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    try {
-      const result = await pool.query(
-        `UPDATE auth.users
-         SET reset_token = $1, reset_token_expiry = $2
-         WHERE email = $3
-         RETURNING id`,
-        [token, expires_at, email],
-      );
-
-      if (result.rowCount === 0) return null;
-
-      return { token, expires_at };
-    } catch (error) {
-      console.error("❌ Error generating reset token:", error.message);
-      throw error;
-    }
-  }
-  static async totalStudent() {
-    try {
-      const countResult = await pool.query(`SELECT COUNT(*) FROM auth.users`);
-      const total = parseInt(countResult.rows[0].count);
-      return Number(total);
-    } catch (error) {
-      throw error;
-    }
-  }
   static async generateTempPassword(reg_number, client = pool) {
     try {
       const user = await this.findByRegNum(reg_number, client);
-
-      if (!user) {
-        return null;
-      }
+      if (!user) return null;
 
       const temp_password = generate_tempPassword().toString();
       const password_hash = await bcrypt.hash(temp_password, 10);
-      const expires_at = new Date(Date.now() + 15 * 60 * 1000)
+      const expires_at = new Date(Date.now() + 15 * 60 * 1000);
+
       await client.query(
-        `
-      UPDATE auth.users
-      SET password_hash = $1, expires_at =$2
-      WHERE id = $3
-      `,
-        [password_hash, expires_at, user.user_id],
+        `UPDATE auth.users
+         SET password_hash = $1, expires_at = $2
+         WHERE id = $3`,
+        [password_hash, expires_at, user.user_id]
       );
 
       return temp_password;
@@ -274,4 +192,12 @@ export class User extends Person {
     }
   }
 
+  static async totalStudent(client = pool) {
+    try {
+      const result = await client.query(`SELECT COUNT(*) FROM auth.users`);
+      return parseInt(result.rows[0].count, 10);
+    } catch (error) {
+      throw error;
+    }
+  }
 }

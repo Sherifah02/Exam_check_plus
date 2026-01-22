@@ -30,12 +30,8 @@ const ResultCheck = () => {
 
   // Stores
   const { user } = useAuthStore();
-  const {
-    semesters,
-    sessions,
-    fetchSemesters,
-    fetchSessions,
-  } = useGeneralStore();
+  const { semesters, sessions, fetchSemesters, fetchSessions } =
+    useGeneralStore();
 
   const { checkResult, resultData, isLoading, error } = useResultStore();
 
@@ -74,15 +70,15 @@ const ResultCheck = () => {
 
   // Get user level from auth store
   const getUserLevel = () => {
-    return user?.year_of_study ? `${user.year_of_study}00 Level` : "200 Level";
+    return user?.level ? `${user.level}` : "200 Level";
   };
 
   // Format semester options from store
   const getSemesterOptions = () => {
     if (semesters && semesters.length > 0) {
-      return semesters.map(sem => ({
+      return semesters.map((sem) => ({
         value: sem.id || sem.value,
-        label: sem.name || sem.label
+        label: sem.name || sem.label,
       }));
     }
     return [
@@ -94,9 +90,9 @@ const ResultCheck = () => {
   // Format session options from store
   const getSessionOptions = () => {
     if (sessions && sessions.length > 0) {
-      return sessions.map(sess => ({
+      return sessions.map((sess) => ({
         value: sess.id || sess.value,
-        label: sess.name || sess.label
+        label: sess.name || sess.label,
       }));
     }
     return [
@@ -109,12 +105,12 @@ const ResultCheck = () => {
   // --- HANDLERS ---
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -188,16 +184,13 @@ const ResultCheck = () => {
     const semesterOptions = getSemesterOptions();
     const sessionOptions = getSessionOptions();
 
-    const semester = semesterOptions.find(s => s.value === formData.semester);
-    const session = sessionOptions.find(s => s.value === formData.session);
+    const semester = semesterOptions.find((s) => s.value === formData.semester);
+    const session = sessionOptions.find((s) => s.value === formData.session);
 
     return semester && session ? `${semester.label}, ${session.label}` : "";
   };
 
   // Calculate statistics from result data
-
-
-
 
   return (
     <div className="dashboard-container">
@@ -308,7 +301,10 @@ const ResultCheck = () => {
                     display: "block",
                   }}
                 >
-                  <Layers size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
+                  <Layers
+                    size={16}
+                    style={{ marginRight: "8px", verticalAlign: "middle" }}
+                  />
                   Semester *
                 </label>
                 <div style={{ position: "relative" }}>
@@ -317,34 +313,39 @@ const ResultCheck = () => {
                     value={formData.semester}
                     onChange={handleInputChange}
                     disabled={localLoading}
-                    className={`form-select ${errors.semester ? 'error' : ''}`}
+                    className={`form-select ${errors.semester ? "error" : ""}`}
                     style={{ width: "100%", padding: "12px 16px" }}
                   >
                     <option value="">Select Semester</option>
-                    {getSemesterOptions().map(option => (
+                    {getSemesterOptions().map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown size={20} style={{
-                    position: "absolute",
-                    right: "16px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    pointerEvents: "none",
-                    color: "#6b7280"
-                  }} />
+                  <ChevronDown
+                    size={20}
+                    style={{
+                      position: "absolute",
+                      right: "16px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      pointerEvents: "none",
+                      color: "#6b7280",
+                    }}
+                  />
                 </div>
                 {errors.semester && (
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    color: "#ef4444",
-                    fontSize: "0.85rem",
-                    marginTop: "6px"
-                  }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      color: "#ef4444",
+                      fontSize: "0.85rem",
+                      marginTop: "6px",
+                    }}
+                  >
                     <AlertCircle size={14} />
                     <span>{errors.semester}</span>
                   </div>
@@ -361,7 +362,10 @@ const ResultCheck = () => {
                     display: "block",
                   }}
                 >
-                  <Calendar size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
+                  <Calendar
+                    size={16}
+                    style={{ marginRight: "8px", verticalAlign: "middle" }}
+                  />
                   Academic Session *
                 </label>
                 <div style={{ position: "relative" }}>
@@ -370,34 +374,39 @@ const ResultCheck = () => {
                     value={formData.session}
                     onChange={handleInputChange}
                     disabled={localLoading}
-                    className={`form-select ${errors.session ? 'error' : ''}`}
+                    className={`form-select ${errors.session ? "error" : ""}`}
                     style={{ width: "100%", padding: "12px 16px" }}
                   >
                     <option value="">Select Session</option>
-                    {getSessionOptions().map(option => (
+                    {getSessionOptions().map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown size={20} style={{
-                    position: "absolute",
-                    right: "16px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    pointerEvents: "none",
-                    color: "#6b7280"
-                  }} />
+                  <ChevronDown
+                    size={20}
+                    style={{
+                      position: "absolute",
+                      right: "16px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      pointerEvents: "none",
+                      color: "#6b7280",
+                    }}
+                  />
                 </div>
                 {errors.session && (
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    color: "#ef4444",
-                    fontSize: "0.85rem",
-                    marginTop: "6px"
-                  }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      color: "#ef4444",
+                      fontSize: "0.85rem",
+                      marginTop: "6px",
+                    }}
+                  >
                     <AlertCircle size={14} />
                     <span>{errors.session}</span>
                   </div>
@@ -415,16 +424,21 @@ const ResultCheck = () => {
 
               {/* Show error from store */}
               {error && (
-                <div style={{
-                  marginTop: "15px",
-                  padding: "12px",
-                  backgroundColor: "#fee2e2",
-                  border: "1px solid #ef4444",
-                  borderRadius: "8px",
-                  color: "#dc2626",
-                  fontSize: "0.85rem"
-                }}>
-                  <AlertCircle size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
+                <div
+                  style={{
+                    marginTop: "15px",
+                    padding: "12px",
+                    backgroundColor: "#fee2e2",
+                    border: "1px solid #ef4444",
+                    borderRadius: "8px",
+                    color: "#dc2626",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  <AlertCircle
+                    size={16}
+                    style={{ marginRight: "8px", verticalAlign: "middle" }}
+                  />
                   {error}
                 </div>
               )}
@@ -456,7 +470,10 @@ const ResultCheck = () => {
 
               {/* Display selected semester and session */}
               <p style={{ color: "#64748b", marginBottom: "10px" }}>
-                <Layers size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
+                <Layers
+                  size={16}
+                  style={{ marginRight: "8px", verticalAlign: "middle" }}
+                />
                 {getSemesterLabel()}
               </p>
 
@@ -475,9 +492,15 @@ const ResultCheck = () => {
                   <table className="result-table">
                     <thead>
                       <tr>
-                        <th style={{ textAlign: "center", width: "40%" }}>Course</th>
-                        <th style={{ textAlign: "center", width: "20%" }}>Score</th>
-                        <th style={{ textAlign: "center", width: "20%" }}>Grade</th>
+                        <th style={{ textAlign: "center", width: "40%" }}>
+                          Course
+                        </th>
+                        <th style={{ textAlign: "center", width: "20%" }}>
+                          Score
+                        </th>
+                        <th style={{ textAlign: "center", width: "20%" }}>
+                          Grade
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -487,11 +510,15 @@ const ResultCheck = () => {
                             <div style={{ fontWeight: "600" }}>
                               {course.course_code || course.code}
                             </div>
-                            <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                            <div
+                              style={{ fontSize: "0.85rem", color: "#64748b" }}
+                            >
                               {course.course_title || course.course_name}
                             </div>
                           </td>
-                          <td style={{ textAlign: "center" }}>{course.score}</td>
+                          <td style={{ textAlign: "center" }}>
+                            {course.score}
+                          </td>
                           <td style={{ textAlign: "center" }}>
                             <span
                               className={`grade-badge ${getGradeClass(course.grade)}`}
@@ -503,15 +530,15 @@ const ResultCheck = () => {
                       ))}
                     </tbody>
                   </table>
-
-
                 </>
               ) : (
-                <div style={{
-                  padding: "30px",
-                  textAlign: "center",
-                  color: "#64748b"
-                }}>
+                <div
+                  style={{
+                    padding: "30px",
+                    textAlign: "center",
+                    color: "#64748b",
+                  }}
+                >
                   <p>No course data available for this semester.</p>
                 </div>
               )}
@@ -558,8 +585,15 @@ const ResultCheck = () => {
               <p style={{ color: "#64748b", marginBottom: "10px" }}>
                 Results for {getSemesterLabel()} are not available yet.
               </p>
-              <p style={{ color: "#94a3b8", fontSize: "0.9rem", marginBottom: "30px" }}>
-                Please check back later or contact your department if you believe this is an error.
+              <p
+                style={{
+                  color: "#94a3b8",
+                  fontSize: "0.9rem",
+                  marginBottom: "30px",
+                }}
+              >
+                Please check back later or contact your department if you
+                believe this is an error.
               </p>
               <button
                 className="venue-button-secondary"
@@ -603,7 +637,13 @@ const ResultCheck = () => {
             <h3 style={{ marginBottom: "20px" }}>Check Results</h3>
 
             <div style={{ width: "100%", marginBottom: "15px" }}>
-              <label style={{ fontWeight: "600", color: "#334155", fontSize: "0.9rem" }}>
+              <label
+                style={{
+                  fontWeight: "600",
+                  color: "#334155",
+                  fontSize: "0.9rem",
+                }}
+              >
                 Your ID:
               </label>
               <input
@@ -617,7 +657,13 @@ const ResultCheck = () => {
 
             {/* Semester Selection - Mobile */}
             <div style={{ width: "100%", marginBottom: "15px" }}>
-              <label style={{ fontWeight: "600", color: "#334155", fontSize: "0.9rem" }}>
+              <label
+                style={{
+                  fontWeight: "600",
+                  color: "#334155",
+                  fontSize: "0.9rem",
+                }}
+              >
                 Semester *
               </label>
               <select
@@ -625,25 +671,32 @@ const ResultCheck = () => {
                 value={formData.semester}
                 onChange={handleInputChange}
                 disabled={localLoading}
-                className={`form-select ${errors.semester ? 'error' : ''}`}
-                style={{ width: "100%", padding: "10px", fontSize: "0.9rem", marginTop: "5px" }}
+                className={`form-select ${errors.semester ? "error" : ""}`}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  fontSize: "0.9rem",
+                  marginTop: "5px",
+                }}
               >
                 <option value="">Select Semester</option>
-                {getSemesterOptions().map(option => (
+                {getSemesterOptions().map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
               </select>
               {errors.semester && (
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  color: "#ef4444",
-                  fontSize: "0.8rem",
-                  marginTop: "4px"
-                }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    color: "#ef4444",
+                    fontSize: "0.8rem",
+                    marginTop: "4px",
+                  }}
+                >
                   <AlertCircle size={12} />
                   <span>{errors.semester}</span>
                 </div>
@@ -652,7 +705,13 @@ const ResultCheck = () => {
 
             {/* Session Selection - Mobile */}
             <div style={{ width: "100%", marginBottom: "20px" }}>
-              <label style={{ fontWeight: "600", color: "#334155", fontSize: "0.9rem" }}>
+              <label
+                style={{
+                  fontWeight: "600",
+                  color: "#334155",
+                  fontSize: "0.9rem",
+                }}
+              >
                 Academic Session *
               </label>
               <select
@@ -660,25 +719,32 @@ const ResultCheck = () => {
                 value={formData.session}
                 onChange={handleInputChange}
                 disabled={localLoading}
-                className={`form-select ${errors.session ? 'error' : ''}`}
-                style={{ width: "100%", padding: "10px", fontSize: "0.9rem", marginTop: "5px" }}
+                className={`form-select ${errors.session ? "error" : ""}`}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  fontSize: "0.9rem",
+                  marginTop: "5px",
+                }}
               >
                 <option value="">Select Session</option>
-                {getSessionOptions().map(option => (
+                {getSessionOptions().map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
               </select>
               {errors.session && (
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  color: "#ef4444",
-                  fontSize: "0.8rem",
-                  marginTop: "4px"
-                }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    color: "#ef4444",
+                    fontSize: "0.8rem",
+                    marginTop: "4px",
+                  }}
+                >
                   <AlertCircle size={12} />
                   <span>{errors.session}</span>
                 </div>
@@ -711,7 +777,13 @@ const ResultCheck = () => {
                 ({getUserLevel()})
               </span>
             </h3>
-            <p style={{ fontSize: "0.9rem", color: "#64748b", marginBottom: "15px" }}>
+            <p
+              style={{
+                fontSize: "0.9rem",
+                color: "#64748b",
+                marginBottom: "15px",
+              }}
+            >
               {getSemesterLabel()}
             </p>
 
@@ -720,9 +792,15 @@ const ResultCheck = () => {
                 <table className="result-table" style={{ fontSize: "0.8rem" }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: "center", width: "40%" }}>Course</th>
-                      <th style={{ textAlign: "center", width: "20%" }}>Score</th>
-                      <th style={{ textAlign: "center", width: "20%" }}>Grade</th>
+                      <th style={{ textAlign: "center", width: "40%" }}>
+                        Course
+                      </th>
+                      <th style={{ textAlign: "center", width: "20%" }}>
+                        Score
+                      </th>
+                      <th style={{ textAlign: "center", width: "20%" }}>
+                        Grade
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -748,16 +826,16 @@ const ResultCheck = () => {
                     ))}
                   </tbody>
                 </table>
-
-
               </>
             ) : (
-              <div style={{
-                padding: "20px",
-                textAlign: "center",
-                color: "#64748b",
-                fontSize: "0.9rem"
-              }}>
+              <div
+                style={{
+                  padding: "20px",
+                  textAlign: "center",
+                  color: "#64748b",
+                  fontSize: "0.9rem",
+                }}
+              >
                 <p>No course data available for this semester.</p>
               </div>
             )}
@@ -782,7 +860,7 @@ const ResultCheck = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "6px"
+                  gap: "6px",
                 }}
               >
                 <Download size={16} />
@@ -800,7 +878,13 @@ const ResultCheck = () => {
               color="#ef4444"
               style={{ marginBottom: "15px" }}
             />
-            <h3 style={{ color: "#ef4444", fontSize: "1.2rem", marginBottom: "10px" }}>
+            <h3
+              style={{
+                color: "#ef4444",
+                fontSize: "1.2rem",
+                marginBottom: "10px",
+              }}
+            >
               Not Available
             </h3>
             <p

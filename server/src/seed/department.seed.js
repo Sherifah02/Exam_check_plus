@@ -7,6 +7,7 @@ export const seedDepartments = async () => {
     { name: "Physics" },
     { name: "Biology" },
     { name: "Chemistry" },
+    {name: "Electrical Engineering"}
   ];
 
   try {

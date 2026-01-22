@@ -1,4 +1,7 @@
-import { pool } from "../config/db.config.js";
+import { Level } from "../model/Level.js";
+import { Departments } from '../model/Departments.js';
+import { Student } from "../model/Student.js";
+
 export const seedStudents = async () => {
   const students = [
     {
@@ -7,7 +10,7 @@ export const seedStudents = async () => {
       last_name: "Abdullahi",
       email: "aisha.abdullahi@buk.edu.ng",
       department: "Computer Science",
-      year_of_study: 3,
+      level: "100 Level",
       phone_number: "08031234567",
     },
     {
@@ -16,7 +19,7 @@ export const seedStudents = async () => {
       last_name: "Musa",
       email: "talk2muhammedawwal@gmail.com",
       department: "Computer Science",
-      year_of_study: 4,
+      level: "400 Level",
       phone_number: "09036144610",
     },
     {
@@ -25,7 +28,7 @@ export const seedStudents = async () => {
       last_name: "Sani",
       email: "muhammed.sani@buk.edu.ng",
       department: "Computer Science",
-      year_of_study: 2,
+      level: "200 Level",
       phone_number: "08123456789",
     },
     {
@@ -34,7 +37,7 @@ export const seedStudents = async () => {
       last_name: "Yusuf",
       email: "fatima.yusuf@buk.edu.ng",
       department: "Electrical Engineering",
-      year_of_study: 4,
+      level: "400 Level",
       phone_number: "09098765432",
     },
     {
@@ -43,7 +46,16 @@ export const seedStudents = async () => {
       last_name: "Yusuf",
       email: "muhammedawwal770@gmail.com",
       department: "Electrical Engineering",
-      year_of_study: 4,
+      level: "400 Level",
+      phone_number: "09098765432",
+    },
+    {
+      reg_number: "CST/21/COM/00736",
+      first_name: "Fatima",
+      last_name: "Yusuf",
+      email: "sherifaabdul@gmail.com",
+      department: "Electrical Engineering",
+      level: "400 Level",
       phone_number: "09098765432",
     },
   ];
@@ -52,21 +64,30 @@ export const seedStudents = async () => {
     console.log("🌱 Seeding students…");
 
     for (const s of students) {
-      const query = `
-        INSERT INTO academic.students
-        ( reg_number, first_name, last_name, email, department, year_of_study, phone_number)
-        VALUES ( $1, $2, $3, $4, $5, $6, $7)
-        ON CONFLICT (reg_number) DO NOTHING;
-      `;
-      await pool.query(query, [
-        s.reg_number,
-        s.first_name,
-        s.last_name,
-        s.email,
-        s.department,
-        s.year_of_study,
-        s.phone_number,
-      ]);
+      try {
+        const level = await Level.findByName(s.level);
+        const department = await Departments.findByName(s.department);
+
+        if (!level || !department) {
+          console.warn(`⚠️ Level or department not found for ${s.first_name} ${s.last_name}`);
+          continue;
+        }
+
+        const student = new Student({
+          reg_number: s.reg_number,
+          first_name: s.first_name,
+          last_name: s.last_name,
+          middle_name: s.middle_name || null,
+          email: s.email,
+          phone_number: s.phone_number,
+          department_id: department.id,
+          level_id: level.id,
+        });
+
+        await student.save();
+      } catch (error) {
+        console.error(`❌ Error inserting student ${s.reg_number}:`, error.message);
+      }
     }
 
     console.log("✅ Students seeded successfully.");

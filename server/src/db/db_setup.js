@@ -26,7 +26,7 @@ export const createDatabase = async () => {
 };
 
 /* =====================================================
-   CREATE SCHEMAS & TABLES
+   CREATE SCHEMAS AND TABLES
 ===================================================== */
 export const createTables = async () => {
   const client = await pool.connect();
@@ -34,13 +34,11 @@ export const createTables = async () => {
   try {
     await client.query("BEGIN");
 
-    /* ============================
-       EXTENSIONS
-    ============================ */
+    // Enable UUID generation
     await client.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
 
     /* ============================
-       SCHEMAS
+       CREATE SCHEMAS
     ============================ */
     await client.query(`
       CREATE SCHEMA IF NOT EXISTS auth;
@@ -49,7 +47,7 @@ export const createTables = async () => {
     `);
 
     /* ============================
-       ACADEMIC CORE TABLES
+       ACADEMIC REFERENCE TABLES
     ============================ */
     await client.query(`
       CREATE TABLE IF NOT EXISTS academic.departments (
@@ -86,7 +84,7 @@ export const createTables = async () => {
     `);
 
     /* ============================
-       STUDENTS
+       STUDENTS TABLE
     ============================ */
     await client.query(`
       CREATE TABLE IF NOT EXISTS academic.students (
@@ -97,22 +95,8 @@ export const createTables = async () => {
         last_name VARCHAR(225),
         email VARCHAR(100) UNIQUE NOT NULL,
         phone_number VARCHAR(15),
-        department_id UUID REFERENCES academic.departments(id),
-        level_id UUID REFERENCES academic.levels(id),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    /* ============================
-       COURSES
-    ============================ */
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS academic.courses (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        course_code VARCHAR(20) UNIQUE NOT NULL,
-        course_title VARCHAR(100) UNIQUE NOT NULL,
-        department_id UUID REFERENCES academic.departments(id),
-        level_id UUID REFERENCES academic.levels(id),
+        department_id UUID NOT NULL REFERENCES academic.departments(id),
+        level_id UUID NOT NULL REFERENCES academic.levels(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -142,24 +126,38 @@ export const createTables = async () => {
     `);
 
     /* ============================
-       RESULT BATCHES
+       COURSES TABLE
+    ============================ */
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS academic.courses (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        course_code VARCHAR(20) UNIQUE NOT NULL,
+        course_title VARCHAR(100) UNIQUE NOT NULL,
+        department_id UUID REFERENCES academic.departments(id),
+        level_id UUID REFERENCES academic.levels(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    /* ============================
+       RESULT BATCH TABLE
     ============================ */
     await client.query(`
       CREATE TABLE IF NOT EXISTS academic.result_batches (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         uploaded_by UUID REFERENCES auth.users(id),
-        department_id UUID NOT NULL REFERENCES academic.departments(id),
-        level_id UUID NOT NULL REFERENCES academic.levels(id),
-        semester_id UUID NOT NULL REFERENCES academic.semesters(id),
-        session_id UUID NOT NULL REFERENCES academic.academic_sessions(id),
-        course_id UUID NOT NULL REFERENCES academic.courses(id),
+        department_id UUID NOT NULL UNIQUE REFERENCES academic.departments(id),
+        level_id UUID NOT NULL UNIQUE REFERENCES academic.levels(id),
+        semester_id UUID NOT NULL UNIQUE REFERENCES academic.semesters(id),
+        session_id UUID NOT NULL UNIQUE REFERENCES academic.academic_sessions(id),
+        course_id UUID NOT NULL UNIQUE REFERENCES academic.courses(id),
         file_path TEXT,
         uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
     /* ============================
-       RESULTS
+       RESULTS TABLE
     ============================ */
     await client.query(`
       CREATE TABLE IF NOT EXISTS academic.results (
@@ -167,7 +165,7 @@ export const createTables = async () => {
         batch_id UUID NOT NULL REFERENCES academic.result_batches(id) ON DELETE CASCADE,
         reg_number TEXT NOT NULL REFERENCES academic.students(reg_number) ON DELETE CASCADE,
         course_id UUID NOT NULL REFERENCES academic.courses(id) ON DELETE CASCADE,
-        score INT NOT NULL CHECK (score BETWEEN 0 AND 100),
+        score INT NOT NULL CHECK (score >= 0 AND score <= 100),
         grade VARCHAR(2) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE (batch_id, reg_number, course_id)

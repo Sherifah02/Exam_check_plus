@@ -1,12 +1,12 @@
 import { pool } from "../config/db.config.js"
 
 export class ResultBatch {
-  static async create({  department_id, level_id, semester_id, session_id, course_id, file_path = '' }) {
+  static async create({ department_id, level_id, semester_id, session_id, course_id, file_path = '' }) {
     try {
       const query = `INSERT INTO academic.result_batches( department_id, level_id, semester_id, session_id, course_id, file_path) VALUES($1,$2,$3,$4,$5,$6) RETURNING *`
-      const result = await pool.query(query, [ department_id, level_id, semester_id, session_id, course_id, file_path])
+      const result = await pool.query(query, [department_id, level_id, semester_id, session_id, course_id, file_path])
       if (result.rowCount === 0) return null
-      return result.rows
+      return result.rows[0]
     } catch (error) {
       throw error
     }
@@ -43,4 +43,36 @@ export class ResultBatch {
       throw error
     }
   }
+
+  static async findBySemesterCourseDepartmentLevel({
+    semester_id,
+    course_id,
+    department_id,
+    level_id
+  }) {
+    try {
+      const query = `
+      SELECT *
+      FROM academic.result_batches
+      WHERE semester_id = $1
+        AND course_id = $2
+        AND department_id = $3
+        AND level_id = $4
+    `
+
+      const result = await pool.query(query, [
+        semester_id,
+        course_id,
+        department_id,
+        level_id
+      ])
+
+      if (result.rowCount === 0) return null
+      return result.rows
+    } catch (error) {
+      throw error
+    }
+  }
+
+
 }

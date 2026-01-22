@@ -64,7 +64,18 @@ export const addResult = async (req, res) => {
 
     //  Delete temp CSV
     fs.unlinkSync(req.file.path);
-
+    const batches = await ResultBatch.findBySemesterCourseDepartmentLevel({
+      semester_id: semester_exist.id,
+      course_id: course_exist.id,
+      department_id: department_exist.id,
+      level_id: level_exist.id
+    })
+    if (batches && batches.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Result already exist"
+      })
+    }
     // Create ResultBatch
     const result_batch = await ResultBatch.create({
       // upload_by: req.user?.id || null, // or admin ID
@@ -99,7 +110,7 @@ export const addResult = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Add result error:", error.message);
+    console.error("Add result error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -116,7 +127,7 @@ export const checkStudentResult = async (req, res) => {
       semester_id: semester
     })
 
-    if (!result_batches.length) {
+    if (!result_batches?.length || !result_batches) {
       return res.status(404).json({
         success: false,
         message: "No record found"
@@ -145,7 +156,7 @@ export const checkStudentResult = async (req, res) => {
     })
 
   } catch (error) {
-    console.error("Check result error:", error.message)
+    console.error("Check result error:", error)
     return res.status(500).json({
       success: false,
       message: "Internal server error",

@@ -26,7 +26,7 @@ export class Result {
       `
       const result = await pool.query(query, [batch_id, reg_number])
       if (result.rowCount === 0) return null
-      return result.rows
+      return result.rows[0]
     } catch (error) {
       throw error
     }

@@ -43,7 +43,7 @@ const AdminVerification = () => {
 
   // --- LOGOUT HANDLERS ---
   const handleLogoutClick = () => setShowLogoutModal(true);
-  const confirmLogout = () => navigate('/admin-login');
+  const confirmLogout = () => navigate('/admin/login');
   const cancelLogout = () => setShowLogoutModal(false);
 
   return (
@@ -74,11 +74,11 @@ const AdminVerification = () => {
         </div>
 
         <nav className="sidebar-menu">
-          <div className="sidebar-item" onClick={() => navigate('/admin-dashboard')}>
+          <div className="sidebar-item" onClick={() => navigate('/admin/dashboard')}>
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
           </div>
-          <div className="sidebar-item" onClick={() => navigate('/admin-profile')}>
+          <div className="sidebar-item" onClick={() => navigate('/admin/profile')}>
             <User size={20} />
             <span>Profile</span>
           </div>
@@ -267,11 +267,11 @@ const AdminVerification = () => {
         </div>
 
         <nav className="sidebar-menu">
-          <div className="sidebar-item" onClick={() => navigate('/admin-dashboard')}>
+          <div className="sidebar-item" onClick={() => navigate('/admin/dashboard')}>
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
           </div>
-          <div className="sidebar-item" onClick={() => navigate('/admin-profile')}>
+          <div className="sidebar-item" onClick={() => navigate('/admin/profile')}>
             <User size={20} />
             <span>Profile</span>
           </div>

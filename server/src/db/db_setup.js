@@ -26,7 +26,7 @@ export const createDatabase = async () => {
 };
 
 /* =====================================================
-   CREATE SCHEMAS AND TABLES
+   CREATE SCHEMAS & TABLES
 ===================================================== */
 export const createTables = async () => {
   const client = await pool.connect();
@@ -34,60 +34,22 @@ export const createTables = async () => {
   try {
     await client.query("BEGIN");
 
-    // Enable UUID generation
+    /* ============================
+       EXTENSIONS
+    ============================ */
     await client.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
 
     /* ============================
-       CREATE SCHEMAS
+       SCHEMAS
     ============================ */
     await client.query(`
       CREATE SCHEMA IF NOT EXISTS auth;
       CREATE SCHEMA IF NOT EXISTS academic;
       CREATE SCHEMA IF NOT EXISTS exam;
     `);
-    /* ============================
-       STUDENTS TABLE
-    ============================ */
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS academic.students (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        reg_number VARCHAR(50) UNIQUE NOT NULL,
-        first_name VARCHAR(225) NOT NULL,
-        middle_name VARCHAR(225),
-        last_name VARCHAR(225),
-        email VARCHAR(100) UNIQUE NOT NULL,
-        phone_number VARCHAR(15),
-        department_id UUID REFERENCES academic.departments(id),
-        level_id UUID REFERENCES academic.levels(id),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    /* ============================
-       AUTH TABLES
-    ============================ */
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS auth.temp_reg (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        reg_number VARCHAR(50) NOT NULL,
-        otp_hash VARCHAR(100) NOT NULL,
-        expires_at TIMESTAMP NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS auth.users (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        student_id UUID UNIQUE REFERENCES academic.students(id) ON DELETE CASCADE,
-        role VARCHAR(20) DEFAULT 'student',
-        password_hash TEXT,
-        expires_at TIMESTAMP NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
 
     /* ============================
-       ACADEMIC REFERENCE TABLES
+       ACADEMIC CORE TABLES
     ============================ */
     await client.query(`
       CREATE TABLE IF NOT EXISTS academic.departments (
@@ -123,10 +85,26 @@ export const createTables = async () => {
       );
     `);
 
-
+    /* ============================
+       STUDENTS
+    ============================ */
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS academic.students (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        reg_number VARCHAR(50) UNIQUE NOT NULL,
+        first_name VARCHAR(225) NOT NULL,
+        middle_name VARCHAR(225),
+        last_name VARCHAR(225),
+        email VARCHAR(100) UNIQUE NOT NULL,
+        phone_number VARCHAR(15),
+        department_id UUID REFERENCES academic.departments(id),
+        level_id UUID REFERENCES academic.levels(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
     /* ============================
-       COURSES TABLE
+       COURSES
     ============================ */
     await client.query(`
       CREATE TABLE IF NOT EXISTS academic.courses (
@@ -140,33 +118,57 @@ export const createTables = async () => {
     `);
 
     /* ============================
-       RESULT BATCH TABLE
+       AUTH TABLES
+    ============================ */
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS auth.temp_reg (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        reg_number VARCHAR(50) NOT NULL,
+        otp_hash VARCHAR(100) NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS auth.users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        student_id UUID UNIQUE REFERENCES academic.students(id) ON DELETE CASCADE,
+        role VARCHAR(20) DEFAULT 'student',
+        password_hash TEXT,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    /* ============================
+       RESULT BATCHES
     ============================ */
     await client.query(`
       CREATE TABLE IF NOT EXISTS academic.result_batches (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         uploaded_by UUID REFERENCES auth.users(id),
-        department_id NOT NULL UUID REFERENCES academic.departments(id),
-        level_id NOT NULL  UUID REFERENCES academic.levels(id),
-        semester_id NOT NULL UUID REFERENCES academic.semesters(id),
-        session_id NOT NULL UUID REFERENCES academic.academic_sessions(id),
-        course_id NOT NULL UUID REFERENCES academic.courses(id),
+        department_id UUID NOT NULL REFERENCES academic.departments(id),
+        level_id UUID NOT NULL REFERENCES academic.levels(id),
+        semester_id UUID NOT NULL REFERENCES academic.semesters(id),
+        session_id UUID NOT NULL REFERENCES academic.academic_sessions(id),
+        course_id UUID NOT NULL REFERENCES academic.courses(id),
         file_path TEXT,
         uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
     /* ============================
-       RESULTS TABLE
+       RESULTS
     ============================ */
     await client.query(`
       CREATE TABLE IF NOT EXISTS academic.results (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        batch_id NOT NULL UUID REFERENCES academic.result_batches(id) ON DELETE CASCADE,
-        reg_number NOT NULL TEXT REFERENCES academic.students(reg_number) ON DELETE CASCADE,
-        course_id NOT NULL UUID REFERENCES academic.courses(id) ON DELETE CASCADE,
-        score NOT NULL INT CHECK (score >= 0 AND score <= 100),
-        grade NOT NULL VARCHAR(2),
+        batch_id UUID NOT NULL REFERENCES academic.result_batches(id) ON DELETE CASCADE,
+        reg_number TEXT NOT NULL REFERENCES academic.students(reg_number) ON DELETE CASCADE,
+        course_id UUID NOT NULL REFERENCES academic.courses(id) ON DELETE CASCADE,
+        score INT NOT NULL CHECK (score BETWEEN 0 AND 100),
+        grade VARCHAR(2) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE (batch_id, reg_number, course_id)
       );
@@ -206,4 +208,3 @@ export const createTables = async () => {
     client.release();
   }
 };
-

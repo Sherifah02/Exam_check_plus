@@ -10,7 +10,7 @@ import { Result } from '../model/Result.js';
 
 export const addResult = async (req, res) => {
   const { level, department, semester, session, courseCode } = req.body;
-  console.table({ level, department, semester, session, courseCode })
+
   if (!req.file) {
     return res.status(400).json({
       success: false,
@@ -34,7 +34,7 @@ export const addResult = async (req, res) => {
       AcademicSession.findById(session),
       Courses.findByCourseCode(courseCode),
     ]);
-console.log(session_exist)
+
     const checks = [
       { value: department_exist, message: "Department not found" },
       { value: semester_exist, message: "Semester not found" },
@@ -73,7 +73,7 @@ console.log(session_exist)
       semester_id: semester_exist.id,
       course_id: course_exist.id,
       file_path: req.file.path,
-      session_id:session_exist.id
+      session_id: session_exist.id
     });
     console.log(result_batch)
 
@@ -108,33 +108,48 @@ console.log(session_exist)
   }
 };
 export const checkStudentResult = async (req, res) => {
-  const { session, reg_number,semester } = req.body
-  console.log(reg_number)
-  try {
-    const result_batch = await ResultBatch.findBySemesterId({ session_id:session, semester_id:semester })
+  const { session, reg_number, semester } = req.body
 
-    if (!result_batch) {
+  try {
+    const result_batches = await ResultBatch.findBySemesterId({
+      session_id: session,
+      semester_id: semester
+    })
+
+    if (!result_batches.length) {
       return res.status(404).json({
         success: false,
         message: "No record found"
       })
     }
-    const result = await Result.findResult({
-      batch_id: result_batch.id,
-      reg_number
-    })
-    console.log(result)
+
+    const result_promises = result_batches.map(batch =>
+      Result.findResult({
+        batch_id: batch.id,
+        reg_number,
+        semester
+      })
+    )
+
+    const result = await Promise.all(result_promises)
+    if (!result.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No result found for this student"
+      })
+    }
     return res.status(200).json({
       success: true,
-      message: "result fetched",
+      message: "Result fetched",
       result
     })
+
   } catch (error) {
-    console.error("Add result error:", error.message);
+    console.error("Check result error:", error.message)
     return res.status(500).json({
       success: false,
       message: "Internal server error",
       error: error.message
-    });
+    })
   }
 }

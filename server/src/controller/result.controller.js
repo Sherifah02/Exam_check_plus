@@ -7,26 +7,28 @@ import { Level } from '../model/Level.js';
 import { File } from '../utils/fileProcessor.js';
 import { ResultBatch } from '../model/ResultBatch.js';
 import { Result } from '../model/Result.js';
+import { pool } from '../config/db.config.js'
 
 export const addResult = async (req, res) => {
+  const client = await pool.connect();
   const { level, department, semester, session, courseCode } = req.body;
 
   if (!req.file) {
     return res.status(400).json({
       success: false,
-      message: "No file provided"
+      message: "No file provided",
     });
   }
-  console.log(req.file)
 
   try {
+    await client.query("BEGIN");
 
     const [
       department_exist,
       semester_exist,
       level_exist,
       session_exist,
-      course_exist
+      course_exist,
     ] = await Promise.all([
       Departments.findByNId(department),
       Semester.findById(semester),
@@ -43,81 +45,93 @@ export const addResult = async (req, res) => {
       { value: course_exist, message: "Course not found" },
     ];
 
-    const error = checks.find(check => !check.value);
+    const error = checks.find((c) => !c.value);
     if (error) {
+      await client.query("ROLLBACK");
       return res.status(404).json({
         success: false,
         message: error.message,
       });
     }
 
-
     const result_data = await File.read(req);
 
     if (!result_data.length) {
-      fs.unlinkSync(req.result_file.path);
+      await client.query("ROLLBACK");
       return res.status(400).json({
         success: false,
-        message: "No records found in the CSV provided"
+        message: "No records found in the CSV provided",
       });
     }
 
-    //  Delete temp CSV
-    fs.unlinkSync(req.file.path);
+    // Check existing batch
     const batches = await ResultBatch.findBySemesterCourseDepartmentLevel({
       semester_id: semester_exist.id,
       course_id: course_exist.id,
       department_id: department_exist.id,
-      level_id: level_exist.id
-    })
+      level_id: level_exist.id,
+    });
+
     if (batches && batches.length > 0) {
+      await client.query("ROLLBACK");
       return res.status(400).json({
         success: false,
-        message: "Result already exist"
-      })
-    }
-    // Create ResultBatch
-    const result_batch = await ResultBatch.create({
-      // upload_by: req.user?.id || null, // or admin ID
-      department_id: department_exist.id,
-      level_id: level_exist.id,
-      semester_id: semester_exist.id,
-      course_id: course_exist.id,
-      file_path: req.file.path,
-      session_id: session_exist.id
-    });
-    console.log(result_batch)
-
-    //  Insert all results
-    const insertPromises = result_data.map(row => {
-      return Result.create({
-        batch_id: result_batch.id,
-        reg_number: row.regNumber,
-        course_id: course_exist.id,
-        score: row.score,
-        grade: row.grade
+        message: "Result already exists",
       });
-    });
+    }
 
-    await Promise.all(insertPromises);
+    // Create batch
+    const result_batch = await ResultBatch.create(
+      {
+        department_id: department_exist.id,
+        level_id: level_exist.id,
+        semester_id: semester_exist.id,
+        session_id: session_exist.id,
+        course_id: course_exist.id,
+        file_path: req.file.path,
+      },
+      client
+    );
 
-    //  Return success response
+    // Insert results
+    for (const row of result_data) {
+      await Result.create(
+        {
+          batch_id: result_batch.id,
+          reg_number: row.regNumber,
+          course_id: course_exist.id,
+          score: row.score,
+          grade: row.grade,
+        },
+        client
+      );
+    }
+
+    await client.query("COMMIT");
+
     return res.status(201).json({
       success: true,
       message: `Results uploaded successfully for course ${course_exist.course_code}`,
       batch_id: result_batch.id,
-      total_records: result_data.length
+      total_records: result_data.length,
     });
-
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Add result error:", error);
+
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
-      error: error.message
+      message: "Transaction failed",
+      error: error.message,
     });
+  } finally {
+    client.release();
+    if (req.file?.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
   }
 };
+
 export const checkStudentResult = async (req, res) => {
   const { session, reg_number, semester } = req.body
 

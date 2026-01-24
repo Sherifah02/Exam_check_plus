@@ -143,17 +143,19 @@ export const createTables = async () => {
        RESULT BATCH TABLE
     ============================ */
     await client.query(`
-      CREATE TABLE IF NOT EXISTS academic.result_batches (
+        CREATE TABLE IF NOT EXISTS academic.result_batches (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         uploaded_by UUID REFERENCES auth.users(id),
-        department_id UUID NOT NULL UNIQUE REFERENCES academic.departments(id),
-        level_id UUID NOT NULL UNIQUE REFERENCES academic.levels(id),
-        semester_id UUID NOT NULL UNIQUE REFERENCES academic.semesters(id),
-        session_id UUID NOT NULL UNIQUE REFERENCES academic.academic_sessions(id),
-        course_id UUID NOT NULL UNIQUE REFERENCES academic.courses(id),
+        department_id UUID NOT NULL REFERENCES academic.departments(id),
+        level_id UUID NOT NULL REFERENCES academic.levels(id),
+        semester_id UUID NOT NULL REFERENCES academic.semesters(id),
+        session_id UUID NOT NULL REFERENCES academic.academic_sessions(id),
+        course_id UUID NOT NULL REFERENCES academic.courses(id),
         file_path TEXT,
-        uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (department_id, level_id, semester_id, session_id, course_id)
       );
+
     `);
 
     /* ============================

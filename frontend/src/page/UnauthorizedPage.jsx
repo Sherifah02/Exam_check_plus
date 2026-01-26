@@ -2,9 +2,11 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldOff, Home, ArrowLeft } from "lucide-react";
 import "../assets/css/UnauthorizedPage.css"; // We'll create this CSS file
+import { useAuthStore } from "../store/authStore";
 
 const UnauthorizedPage = () => {
   const navigate = useNavigate();
+  const {user} = useAuthStore()
 
   return (
     <div className="unauthorized-container">
@@ -40,25 +42,18 @@ const UnauthorizedPage = () => {
 
           <button
             className="btn-secondary"
-            onClick={() => navigate("/")}
+            onClick={() => {
+              if(user && user.role == 'admin' ||user && user.role == "super_admin"){
+              navigate("/admin/dashboard")
+              }
+            }}
           >
             <Home size={18} style={{ marginRight: "8px" }} />
             Go Home
           </button>
         </div>
 
-        {/* Additional Info */}
-        <div className="info-box">
-          <p className="info-text">
-            <strong>Possible reasons:</strong>
-          </p>
-          <ul className="reason-list">
-            <li>Your session may have expired</li>
-            <li>You don't have the required permissions</li>
-            <li>You're trying to access a restricted area</li>
-            <li>Invalid or missing authentication token</li>
-          </ul>
-        </div>
+
       </div>
     </div>
   );

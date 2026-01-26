@@ -81,7 +81,6 @@ const VenueUploadPage = () => {
   const handleDashboardClick = () => navigate("/admin/dashboard");
   const handleProfileClick = () => navigate("/admin/profile");
   const handleResultUpload = () => navigate("/admin/result-upload");
-  const handleStudentVerification = () => navigate("/admin/verification");
 
   // Logout handlers
   const handleLogoutClick = () => setShowLogoutModal(true);
@@ -306,7 +305,7 @@ CST102,Main Auditorium,2026-02-11 09:00,CST/21/COM/00754,M15`;
       )}
 
       {/* Desktop Sidebar */}
-      <aside className="desktop-sidebar">
+     <aside className="desktop-sidebar">
         <div className="sidebar-logo">
           <ShieldCheck size={28} />
           <span>Admin Portal</span>
@@ -321,17 +320,17 @@ CST102,Main Auditorium,2026-02-11 09:00,CST/21/COM/00754,M15`;
             <FileSpreadsheet size={20} />
             <span>Upload Results</span>
           </div>
-          <div className="sidebar-item active">
-            <MapPin size={20} />
+          <div className="sidebar-item active" >
+            <Building size={20} />
             <span>Upload Venue</span>
+          </div>
+          <div className="sidebar-item " onClick={()=> navigate("/admin/results/batches")}>
+            <FileSpreadsheet size={20} />
+            <span>Result Batches</span>
           </div>
           <div className="sidebar-item" onClick={handleProfileClick}>
             <User size={20} />
             <span>Profile</span>
-          </div>
-          <div className="sidebar-item" onClick={handleStudentVerification}>
-            <Users size={20} />
-            <span>Verification</span>
           </div>
           <div className="sidebar-item" onClick={handleLogoutClick}>
             <LogOut size={20} />
@@ -887,10 +886,7 @@ CST102,Main Auditorium,2026-02-11 09:00,CST/21/COM/00754,M15`;
                 <User size={20} />
                 <span>Profile</span>
               </div>
-              <div className="sidebar-item" onClick={handleStudentVerification}>
-                <Users size={20} />
-                <span>Verification</span>
-              </div>
+
               <div className="sidebar-item" onClick={handleLogoutClick}>
                 <LogOut size={20} />
                 <span>Logout</span>

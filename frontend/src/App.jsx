@@ -23,6 +23,7 @@ import ProtectedRoute from "./hook/ProtectedRoute";
 import GuestRoute from "./hook/GuestRoute";
 import ResultUploadPage from "./page/ResultUploadPage";
 import VenueUploadPage from "./page/VenuePage";
+import AdminResultBatches from "./page/ResultBatches";
 
 function App() {
   const router = createBrowserRouter(
@@ -63,9 +64,9 @@ function App() {
         <Route
           path="/admin/dashboard"
           element={
-            // <ProtectedRoute requiredRole={["admin"]}>
-            <AdminDashb />
-            // </ProtectedRoute>
+            <ProtectedRoute requiredRole={["admin"]}>
+              <AdminDashb />
+            </ProtectedRoute>
           }
         />
         <Route path="/venue-check" element={<VenueCheck />} />
@@ -81,14 +82,43 @@ function App() {
         <Route
           path="/admin/profile"
           element={
-            // <ProtectedRoute requiredRole={["admin"]}>
-            <AdminProfile />
-            // </ProtectedRoute>
+            <ProtectedRoute requiredRole={["admin"]}>
+              <AdminProfile />
+            </ProtectedRoute>
           }
         />
-        <Route path="/admin/verification" element={<AdminVerification />} />
-        <Route path="/admin/result-upload" element={<ResultUploadPage />} />
-        <Route path="/admin/upload-venue" element={<VenueUploadPage />} />
+        <Route
+          path="/admin/results/batches"
+          element={
+            <ProtectedRoute requiredRole={["admin"]}>
+              <AdminResultBatches />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/verification"
+          element={
+            <ProtectedRoute>
+              <AdminVerification />{" "}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/result-upload"
+          element={
+            <ProtectedRoute>
+              <ResultUploadPage />{" "}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/upload-venue"
+          element={
+            <ProtectedRoute>
+              <VenueUploadPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/result-check"
           element={

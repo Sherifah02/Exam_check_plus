@@ -16,7 +16,16 @@
   align-items: center;
   margin-bottom: 10px;
 }
-
+.view-result-button{
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(to right, #a855f7, #6366f1); /* Purple to Indigo */
+  border: none;
+  color: white;
+}
 .subtitle {
   color: #6b7280;
   font-size: 1.1rem;

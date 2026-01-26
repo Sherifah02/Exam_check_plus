@@ -1,13 +1,13 @@
 import fs from "fs";
-import { Departments } from '../model/Departments.js';
+import { Departments } from "../model/Departments.js";
 import { Semester } from "../model/Semester.js";
-import { AcademicSession } from '../model/AcademicSession.js';
-import { Courses } from "../model/Courses.js"
-import { Level } from '../model/Level.js';
-import { File } from '../utils/fileProcessor.js';
-import { ResultBatch } from '../model/ResultBatch.js';
-import { Result } from '../model/Result.js';
-import { pool } from '../config/db.config.js'
+import { AcademicSession } from "../model/AcademicSession.js";
+import { Courses } from "../model/Courses.js";
+import { Level } from "../model/Level.js";
+import { File } from "../utils/fileProcessor.js";
+import { ResultBatch } from "../model/ResultBatch.js";
+import { Result } from "../model/Result.js";
+import { pool } from "../config/db.config.js";
 
 export const addResult = async (req, res) => {
   const client = await pool.connect();
@@ -90,7 +90,7 @@ export const addResult = async (req, res) => {
         course_id: course_exist.id,
         file_path: req.file.path,
       },
-      client
+      client,
     );
 
     // Insert results
@@ -103,7 +103,7 @@ export const addResult = async (req, res) => {
           score: row.score,
           grade: row.grade,
         },
-        client
+        client,
       );
     }
 
@@ -133,48 +133,90 @@ export const addResult = async (req, res) => {
 };
 
 export const checkStudentResult = async (req, res) => {
-  const { session, reg_number, semester } = req.body
+  const { session, reg_number, semester } = req.body;
 
   try {
     const result_batches = await ResultBatch.findBySemesterId({
       session_id: session,
-      semester_id: semester
-    })
+      semester_id: semester,
+    });
 
     if (!result_batches?.length || !result_batches) {
       return res.status(404).json({
         success: false,
-        message: "No record found"
-      })
+        message: "No record found",
+      });
     }
 
-    const result_promises = result_batches.map(batch =>
+    const result_promises = result_batches.map((batch) =>
       Result.findResult({
         batch_id: batch.id,
         reg_number,
-        semester
-      })
-    )
+        semester,
+      }),
+    );
 
-    const result = await Promise.all(result_promises)
+    const result = await Promise.all(result_promises);
     if (!result.length) {
       return res.status(404).json({
         success: false,
-        message: "No result found for this student"
-      })
+        message: "No result found for this student",
+      });
     }
     return res.status(200).json({
       success: true,
       message: "Result fetched",
-      result
-    })
-
+      result,
+    });
   } catch (error) {
-    console.error("Check result error:", error)
+    console.error("Check result error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
-      error: error.message
-    })
+      error: error.message,
+    });
   }
-}
+};
+export const getAllBatches = async (req, res) => {
+  try {
+    const batches = await ResultBatch.findAllDetailed();
+    res.json({
+      success: true,
+      data: batches,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch batches",
+    });
+  }
+};
+export const deleteBatch = async (req, res) => {
+  const { batch_id } = req.params;
+  if (!batch_id) {
+    return res.status(400).json({
+      success: false,
+      message: "batch id is required",
+    });
+  }
+  try {
+    const batches = await ResultBatch.deleteById(batch_id);
+    if (!batches) {
+      return res.status(404).json({
+        success: false,
+        message: "Result batch not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      data: batches,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch batches",
+    });
+  }
+};

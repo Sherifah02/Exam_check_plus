@@ -11,6 +11,10 @@ import {
   UploadCloud,
   FileText,
   X,
+  Users,
+  FileSpreadsheet,
+  MapPin,
+  Building,
 } from "lucide-react";
 
 import { useState, useRef } from "react";
@@ -18,6 +22,11 @@ import { useState, useRef } from "react";
 const AdminDashb = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+ const handleDashboardClick = () => navigate("/admin/dashboard");
+  const handleProfileClick = () => navigate("/admin/profile");
+  const handleResultUpload = () => navigate("/admin/result-upload");
+
+  // Logout handlers
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -85,29 +94,34 @@ const AdminDashb = () => {
       {/* ======================= */}
       {/* 1. DESKTOP SIDEBAR      */}
       {/* ======================= */}
-      <aside className="desktop-sidebar">
+       <aside className="desktop-sidebar">
         <div className="sidebar-logo">
           <ShieldCheck size={28} />
           <span>Admin Portal</span>
         </div>
 
-        <nav className="sidebar-menu">
-          <div className="sidebar-item active">
+        <nav className="sidebar-menu ">
+          <div className="sidebar-item active" onClick={handleDashboardClick}>
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
           </div>
-          <div
-            className="sidebar-item"
-            onClick={() => navigate("/admin/profile")}
-          >
+          <div className="sidebar-item" onClick={handleResultUpload}>
+            <FileSpreadsheet size={20} />
+            <span>Upload Results</span>
+          </div>
+          <div className="sidebar-item" onClick={()=>  navigate("/admin/upload-venue")}>
+            <Building size={20} />
+            <span>Upload Venue</span>
+          </div>
+          <div className="sidebar-item " onClick={()=> navigate("/admin/results/batches")}>
+            <FileSpreadsheet size={20} />
+            <span>Result Batches</span>
+          </div>
+          <div className="sidebar-item" onClick={handleProfileClick}>
             <User size={20} />
             <span>Profile</span>
           </div>
-          <div
-            style={{ marginTop: "auto" }}
-            className="sidebar-item"
-            onClick={handleLogoutClick}
-          >
+          <div className="sidebar-item" onClick={handleLogoutClick}>
             <LogOut size={20} />
             <span>Logout</span>
           </div>

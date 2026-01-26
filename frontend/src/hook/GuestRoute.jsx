@@ -29,7 +29,7 @@ const GuestRoute = ({ children }) => {
     const from = location.state?.from?.pathname;
     let dashboardRoute = "/dashboard";
 
-    if (user.role_name === "admin" || user.role_name === "super_admin") {
+    if (user.role === "admin" || user.role === "super_admin") {
       dashboardRoute = "/admin/dashboard";
     }
 

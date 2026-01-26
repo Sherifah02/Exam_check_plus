@@ -34,6 +34,53 @@ export const useResultStore = create((set, get) => ({
       return { success: false };
     }
   },
+  fetchResultBatches: async (payload) => {
+    set({ loadingResult: true, resultError: null, resultSuccess: null })
+    try {
+      const { data } = await api.post(`${ENDPOINT}/all-result-batch`, payload)
+      if (!data.success) {
+        toast.error(data.message)
+        set({ loadingResult: false, resultError: data.message, resultSuccess: null })
+        return { success: false }
+      }
+      set({ loadingResult: false, resultError: null, resultSuccess: data.message })
+      toast.success(data.message)
+      return { success: true, data:data?.data || [] }
+    } catch (error) {
+      const errMsg =
+        error?.response?.data?.message || error.message || "An error occurred";
+      toast.error(errMsg);
+      set({
+        loadingUser: false,
+        userError: errMsg,
+      });
+      return { success: false };
+    }
+  },
+  deleteResultBatch: async (payload) => {
+    set({ loadingResult: true, resultError: null, resultSuccess: null })
+    try {
+      const { data } = await api.post(`${ENDPOINT}/delete-result-batch/${payload}`)
+      if (!data.success) {
+        toast.error(data.message)
+        set({ loadingResult: false, resultError: data.message, resultSuccess: null })
+        return { success: false }
+      }
+      set({ loadingResult: false, resultError: null, resultSuccess: data.message })
+      toast.success(data.message)
+      return { success: true,  }
+    } catch (error) {
+      const errMsg =
+        error?.response?.data?.message || error.message || "An error occurred";
+      toast.error(errMsg);
+      set({
+        loadingUser: false,
+        userError: errMsg,
+      });
+      return { success: false };
+    }
+  },
+
   checkResult: async (payload) => {
     console.table(payload)
     set({ loadingResult: true, resultError: null, resultSuccess: null })

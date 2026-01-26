@@ -123,6 +123,29 @@ export const useAuthStore = create((set, get) => ({
       });
     }
   },
+  loginAdmin: async (payload) => {
+    set({ loadingUser: true, userError: null, userSuccess: null })
+    try {
+      const { data } = await api.post(`${ENDPOINT}/admin-login`, payload)
+      if (!data.success) {
+        toast.error(data.message)
+        set({ loadingUser: false, userError: data.message, userSuccess: null, user: null })
+        return { success: false }
+      }
+      console.log(data.admin)
+
+      set({ loadingUser: false, userError: null, userSuccess: data.message, user: data.admin })
+      return { success: true }
+    } catch (error) {
+      const errMsg =
+        error?.response?.data?.message || error.message || "An error occurred";
+      toast.error(errMsg);
+      set({
+        loadingUser: false,
+        userError: errMsg,
+      });
+    }
+  },
   checkAuth: async () => {
     set({ loadingUser: true, userError: null, userSuccess: null })
     try {

@@ -1,3 +1,4 @@
+import { seedAdmins } from "./admin.seed.js";
 import { seedCourses } from "./course.seed.js";
 import { seedDepartments } from "./department.seed.js";
 import { seedLevels } from "./level.seed.js";
@@ -12,6 +13,7 @@ const runSeeds = async () => {
   await seedAcademicSessions();
   await seedSemesters()
   await seedCourses();
+  await seedAdmins()
 };
 
 runSeeds();

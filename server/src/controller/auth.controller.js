@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { generate_tempPassword, generateOTP } from "../utils/codeGenerator.js";
 import { Temp_Reg } from "../model/Temp_reg.js";
 import { createSession } from "../utils/session.js";
+import { pool } from "../config/db.config.js";
 
 export const checkStudentStatus = async (req, res) => {
   const { reg_number } = req.body;
@@ -216,29 +217,58 @@ export const login = async (req, res) => {
   }
 };
 export const getAuthenticated = async (req, res) => {
-  const { user_id } = req.user
+  const { user_id, role } = req.user;
+  console.table(req.user)
   try {
-    const user = await User.findById(user_id)
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found"
-      })
+    let userData;
+
+    if (role === "admin" || role === "super_admin") {
+      // Fetch admin from auth.admin table
+      const result = await pool.query(
+        `SELECT id, full_name, email, role, created_at
+         FROM auth.admin
+         WHERE id = $1
+         LIMIT 1`,
+        [user_id]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Admin not found",
+        });
+      }
+
+      userData = result.rows[0];
+    } else {
+      // Fetch student user data
+      const user = await User.findById(user_id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      // Remove sensitive info
+      const { password_hash, ...safeData } = user;
+      userData = safeData;
     }
-    const { password_hash, expires_at, ...safeData } = user
+
     return res.status(200).json({
       success: true,
       message: "Authenticated user",
-      user: safeData
-    })
+      user: userData,
+    });
   } catch (error) {
-    console.log(error)
+    console.error("❌ getAuthenticated error:", error.message);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
-    })
+      message: "Internal server error",
+    });
   }
-}
+};
+
 export const logout = async (req, res) => {
   try {
     const SESSION_NAME = "exam_check_plus_session";
@@ -266,6 +296,68 @@ export const logout = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error"
+    });
+  }
+};
+export const adminLogin = async (req, res) => {
+  const { email, password } = req.body;
+  console.table(req.body)
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Email and password are required",
+    });
+  }
+
+  try {
+    // Fetch admin by email
+    const query = `SELECT * FROM auth.admin WHERE email = $1 LIMIT 1`;
+    const result = await pool.query(query, [email]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    const admin = result.rows[0];
+
+    // Compare password
+    const isMatch = await bcrypt.compare(password, admin.password_hash);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    // Generate JWT token
+    const payload = {
+      user_id: admin.id,
+      email: admin.email,
+      role: admin.role,
+      full_name: admin.full_name,
+    };
+
+   await createSession(res, payload)
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      admin: {
+        id: admin.id,
+        full_name: admin.full_name,
+        email: admin.email,
+        role: admin.role,
+      },
+    });
+
+  } catch (error) {
+    console.error("❌ Admin login error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Login failed, please try again",
     });
   }
 };

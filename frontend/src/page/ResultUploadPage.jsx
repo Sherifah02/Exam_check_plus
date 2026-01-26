@@ -90,8 +90,9 @@ const ResultUploadPage = () => {
   const handleDashboardClick = () => navigate("/admin/dashboard");
   const handleProfileClick = () => navigate("/admin-profile");
    const handleResultUpload = () => navigate("/admin/result-upload");
-  const handleStudentVerification = () => navigate("/admin/verification");
-
+ const handleVenueClick = () => {
+    navigate("/admin/upload-venue");
+  };
   // Logout handlers
   const handleLogoutClick = () => setShowLogoutModal(true);
   const confirmLogout = () => navigate("/");
@@ -311,14 +312,14 @@ CST/21/COM/00754,95,A`;
       )}
 
       {/* Desktop Sidebar */}
-       <aside className="desktop-sidebar">
+         <aside className="desktop-sidebar">
         <div className="sidebar-logo">
           <ShieldCheck size={28} />
           <span>Admin Portal</span>
         </div>
 
-        <nav className="sidebar-menu ">
-          <div className="sidebar-item " onClick={handleDashboardClick}>
+        <nav className="sidebar-menu">
+          <div className="sidebar-item" onClick={handleDashboardClick}>
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
           </div>
@@ -326,17 +327,17 @@ CST/21/COM/00754,95,A`;
             <FileSpreadsheet size={20} />
             <span>Upload Results</span>
           </div>
-          <div className="sidebar-item ">
-            <MapPin size={20} />
+          <div className="sidebar-item " onClick={()=>  navigate("/admin/upload-venue")}>
+            <Building size={20} />
             <span>Upload Venue</span>
+          </div>
+          <div className="sidebar-item " onClick={()=> navigate("/admin/results/batches")}>
+            <FileSpreadsheet size={20} />
+            <span>Result Batches</span>
           </div>
           <div className="sidebar-item" onClick={handleProfileClick}>
             <User size={20} />
             <span>Profile</span>
-          </div>
-          <div className="sidebar-item" onClick={handleStudentVerification}>
-            <Users size={20} />
-            <span>Verification</span>
           </div>
           <div className="sidebar-item" onClick={handleLogoutClick}>
             <LogOut size={20} />
@@ -355,6 +356,10 @@ CST/21/COM/00754,95,A`;
             </div>
             <span className="profile-name">Admin User</span>
           </div>
+
+          <button
+          onClick={()=> navigate('/admin/results/batches')}
+          className="view-result-button">View Uploaded result</button>
         </div>
 
         {/* Page Header */}

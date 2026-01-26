@@ -125,6 +125,17 @@ export const createTables = async () => {
       );
     `);
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS auth.admin (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        full_name VARCHAR(225),
+        email VARCHAR(100) UNIQUE NOT NULL,
+        role VARCHAR(20) DEFAULT 'admin',
+        password_hash TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     /* ============================
        COURSES TABLE
     ============================ */

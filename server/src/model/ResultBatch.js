@@ -73,6 +73,47 @@ export class ResultBatch {
       throw error
     }
   }
+  static async deleteById(batch_id) {
+  try {
+    const query = `
+      DELETE FROM academic.result_batches
+      WHERE id = $1
+      RETURNING *;
+    `
+    const result = await pool.query(query, [batch_id])
+
+    if (result.rowCount === 0) return null
+    return result.rows[0]
+  } catch (error) {
+    throw error
+  }
+}
+static async findAllDetailed() {
+  try {
+    const query = `
+      SELECT
+        rb.id,
+        rb.uploaded_at AS created_at,
+        d.name AS department,
+        l.name AS level,
+        s.name AS session,
+        sem.name AS semester,
+        c.course_code,
+        c.course_title
+      FROM academic.result_batches rb
+      JOIN academic.departments d ON d.id = rb.department_id
+      JOIN academic.levels l ON l.id = rb.level_id
+      JOIN academic.academic_sessions s ON s.id = rb.session_id
+      JOIN academic.semesters sem ON sem.id = rb.semester_id
+      JOIN academic.courses c ON c.id = rb.course_id
+      ORDER BY rb.uploaded_at DESC
+    `
+    const result = await pool.query(query)
+    return result.rows
+  } catch (error) {
+    throw error
+  }
+}
 
 
 }

@@ -4,7 +4,7 @@ import { useAuthStore } from "../store/authStore";
 // import { useAuthStore } from "../stores/authStore";
 
 
-const guestPages = ["/login", "/signup", '/'];
+const guestPages = ["/login", "/signup", '/','/admin/login'];
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_SERVER_URL,

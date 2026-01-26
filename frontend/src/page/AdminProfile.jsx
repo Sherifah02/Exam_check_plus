@@ -11,6 +11,10 @@ import {
   Edit2,
   Check,
   X,
+  FileSpreadsheet,
+  MapPin,
+  Users,
+  Building,
 } from "lucide-react";
 
 import { useState } from "react";
@@ -41,6 +45,10 @@ const AdminProfile = () => {
     setShowCopyTooltip(true);
     setTimeout(() => setShowCopyTooltip(false), 2000);
   };
+const handleDashboardClick = () => navigate("/admin/dashboard");
+  const handleProfileClick = () => navigate("/admin/profile");
+  const handleResultUpload = () => navigate("/admin/result-upload");
+
 
   const handleSaveEmail = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -98,34 +106,39 @@ const AdminProfile = () => {
       {/* ======================= */}
       {/* 1. DESKTOP SIDEBAR      */}
       {/* ======================= */}
-      <aside className="desktop-sidebar">
-        <div className="sidebar-logo">
-          <ShieldCheck size={28} />
-          <span>Admin Portal</span>
-        </div>
+         <aside className="desktop-sidebar">
+              <div className="sidebar-logo">
+                <ShieldCheck size={28} />
+                <span>Admin Portal</span>
+              </div>
 
-        <nav className="sidebar-menu">
-          <div
-            className="sidebar-item"
-            onClick={() => navigate("/admin/dashboard")}
-          >
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
-          </div>
-          <div className="sidebar-item active">
-            <User size={20} />
-            <span>Profile</span>
-          </div>
-          <div
-            style={{ marginTop: "auto" }}
-            className="sidebar-item"
-            onClick={handleLogoutClick}
-          >
-            <LogOut size={20} />
-            <span>Logout</span>
-          </div>
-        </nav>
-      </aside>
+              <nav className="sidebar-menu">
+                <div className="sidebar-item" onClick={handleDashboardClick}>
+                  <LayoutDashboard size={20} />
+                  <span>Dashboard</span>
+                </div>
+                <div className="sidebar-item" onClick={handleResultUpload}>
+                  <FileSpreadsheet size={20} />
+                  <span>Upload Results</span>
+                </div>
+                <div className="sidebar-item" onClick={()=>  navigate("/admin/upload-venue")}>
+                  <Building size={20} />
+                  <span>Upload Venue</span>
+                </div>
+                <div className="sidebar-item" onClick={()=>  navigate("/admin/results/batches")}>
+                  <FileSpreadsheet size={20} />
+                  <span>Result Batches</span>
+                </div>
+                <div className="sidebar-item active" onClick={handleProfileClick}>
+                  <User size={20} />
+                  <span>Profile</span>
+                </div>
+                <div className="sidebar-item" onClick={handleLogoutClick}>
+                  <LogOut size={20} />
+                  <span>Logout</span>
+                </div>
+              </nav>
+            </aside>
 
       {/* ======================= */}
       {/* 2. DESKTOP MAIN CONTENT */}

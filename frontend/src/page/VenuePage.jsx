@@ -1,5 +1,5 @@
+// import "../assets/css/VenueUploadPage.css";
 import "../assets/css/DashboardPage.css";
-import "../assets/css/ResultUploadPage.css";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -9,59 +9,52 @@ import {
   LogOut,
   UploadCloud,
   X,
-  GraduationCap,
   Building,
   Calendar,
+  BookOpen,
+  Users,
+  MapPin,
   FileSpreadsheet,
   AlertCircle,
   CheckCircle,
   Download,
   ChevronDown,
-  MapPin,
-  Users,
+  GraduationCap,
 } from "lucide-react";
 
 import { useState, useRef, useEffect } from "react";
 import { useGeneralStore } from "../store/genStore";
-import { useResultStore } from "../store/resultStore";
+import { useVenueStore } from "../store/venueStore";
 
-const ResultUploadPage = () => {
+const VenueUploadPage = () => {
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
-
-  // UI State
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const fileInputRef = useRef(null);
 
-
-  // Form State
+  // State for form data
   const [formData, setFormData] = useState({
     level: "",
-    department: "",
-    semester: "",
-    session: "",
     courseCode: "",
+    session: "",
     file: null,
   });
 
+  // State for UI
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [previewData, setPreviewData] = useState([]);
 
-  // Store Data with safety checks
   const {
-    semesters = [],
-    levels = [],
-    departments = [],
-    sessions = [],
+    levels,
+    sessions,
     fetchLevels,
-    fetchDepartments,
-    fetchSemesters,
     fetchSessions,
   } = useGeneralStore();
 
-  const { uploadResult } = useResultStore();
+  const { uploadVenueAllocation } = useVenueStore();
 
   // Initialize data
   useEffect(() => {
@@ -69,8 +62,6 @@ const ResultUploadPage = () => {
       try {
         await Promise.all([
           fetchLevels(),
-          fetchDepartments(),
-          fetchSemesters(),
           fetchSessions(),
         ]);
       } catch (error) {
@@ -84,12 +75,12 @@ const ResultUploadPage = () => {
     };
 
     loadInitialData();
-  }, [fetchLevels, fetchDepartments, fetchSemesters, fetchSessions]);
+  }, [fetchLevels, fetchSessions]);
 
   // Navigation handlers
   const handleDashboardClick = () => navigate("/admin/dashboard");
-  const handleProfileClick = () => navigate("/admin-profile");
-   const handleResultUpload = () => navigate("/admin/result-upload");
+  const handleProfileClick = () => navigate("/admin/profile");
+  const handleResultUpload = () => navigate("/admin/result-upload");
   const handleStudentVerification = () => navigate("/admin/verification");
 
   // Logout handlers
@@ -115,9 +106,9 @@ const ResultUploadPage = () => {
 
   const validateFile = (file) => {
     const allowedTypes = [
+      "text/csv",
       "application/vnd.ms-excel",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "text/csv",
     ];
 
     const allowedExtensions = /\.(csv|xlsx|xls)$/i;
@@ -148,7 +139,16 @@ const ResultUploadPage = () => {
     setFormData(prev => ({ ...prev, file }));
     setErrors(prev => ({ ...prev, file: "" }));
 
+    // Preview file contents (mock data for now)
+    const mockData = [
+      { regNumber: "CST/21/COM/00750", venue: "ICT Hall A", seatNumber: "A01" },
+      { regNumber: "CST/21/COM/00751", venue: "ICT Hall A", seatNumber: "A02" },
+      { regNumber: "CST/21/COM/00752", venue: "ICT Hall B", seatNumber: "B01" },
+      { regNumber: "CST/21/COM/00753", venue: "ICT Hall B", seatNumber: "B02" },
+      { regNumber: "CST/21/COM/00754", venue: "Main Auditorium", seatNumber: "M15" },
+    ];
 
+    setPreviewData(mockData);
   };
 
   const handleDrop = (e) => {
@@ -165,19 +165,20 @@ const ResultUploadPage = () => {
   };
 
   const downloadTemplate = () => {
-    const templateContent = `RegNumber,Score,Grade
-CST/21/COM/00750,85,A
-CST/21/COM/00751,72,B
-CST/21/COM/00752,90,A
-CST/21/COM/00753,68,C
-CST/21/COM/00754,95,A`;
+const templateContent = `course_code,hall,exam_time,reg_number,seat_number
+CST101,ICT Hall A,2026-02-10 09:00,CST/21/COM/00750,A01
+CST101,ICT Hall A,2026-02-10 09:00,CST/21/COM/00751,A02
+CST101,ICT Hall B,2026-02-10 14:00,CST/21/COM/00752,B01
+CST101,ICT Hall B,2026-02-10 14:00,CST/21/COM/00753,B02
+CST102,Main Auditorium,2026-02-11 09:00,CST/21/COM/00754,M15`;
+
 
     const blob = new Blob([templateContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = "result_upload_template.csv";
+    link.download = "venue_allocation_template.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -188,10 +189,14 @@ CST/21/COM/00754,95,A`;
     const newErrors = {};
 
     if (!formData.level.trim()) newErrors.level = "Please select a level";
-    if (!formData.department.trim()) newErrors.department = "Please select a department";
-    if (!formData.semester.trim()) newErrors.semester = "Please select a semester";
+    if (!formData.courseCode.trim()) newErrors.courseCode = "Please enter a course code";
     if (!formData.session.trim()) newErrors.session = "Please select a session";
     if (!formData.file) newErrors.file = "Please upload a file";
+
+    // Additional validation for course code format
+    if (formData.courseCode.trim() && !/^[A-Z]{3}\s?\d{3}$/i.test(formData.courseCode.trim())) {
+      newErrors.courseCode = "Please enter a valid course code (e.g., CSC 401 or CSC401)";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -207,15 +212,9 @@ CST/21/COM/00754,95,A`;
     // Prepare FormData
     const apiFormData = new FormData();
     apiFormData.append("level", formData.level);
-    apiFormData.append("department", formData.department);
-    apiFormData.append("semester", formData.semester);
+    apiFormData.append("course_code", formData.courseCode.trim().replace(/\s+/g, ''));
     apiFormData.append("session", formData.session);
-
-    if (formData.courseCode.trim()) {
-      apiFormData.append("courseCode", formData.courseCode.trim());
-    }
-
-    apiFormData.append("result_file", formData.file);
+    apiFormData.append("venue_file", formData.file);
 
     setIsLoading(true);
     setUploadStatus(null);
@@ -233,7 +232,7 @@ CST/21/COM/00754,95,A`;
     }, 200);
 
     try {
-      const response = await uploadResult(apiFormData);
+      const response = await uploadVenueAllocation(apiFormData);
 
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -241,8 +240,8 @@ CST/21/COM/00754,95,A`;
       if (response?.success) {
         setUploadStatus({
           type: "success",
-          message: "Results uploaded successfully!",
-          details: response.message || "All results have been processed and saved.",
+          message: "Venue allocation uploaded successfully!",
+          details: response.message || "Venue allocations have been processed and saved.",
         });
 
         // Reset form after success
@@ -267,13 +266,11 @@ CST/21/COM/00754,95,A`;
   const resetForm = () => {
     setFormData({
       level: "",
-      department: "",
-      semester: "",
-      session: "",
       courseCode: "",
+      session: "",
       file: null,
     });
-
+    setPreviewData([]);
     setErrors({});
     setUploadStatus(null);
     setUploadProgress(0);
@@ -286,8 +283,6 @@ CST/21/COM/00754,95,A`;
 
   // Safe data accessors
   const safeLevels = Array.isArray(levels) ? levels : [];
-  const safeDepartments = Array.isArray(departments) ? departments : [];
-  const safeSemesters = Array.isArray(semesters) ? semesters : [];
   const safeSessions = Array.isArray(sessions) ? sessions : [];
 
   return (
@@ -311,22 +306,22 @@ CST/21/COM/00754,95,A`;
       )}
 
       {/* Desktop Sidebar */}
-       <aside className="desktop-sidebar">
+      <aside className="desktop-sidebar">
         <div className="sidebar-logo">
           <ShieldCheck size={28} />
           <span>Admin Portal</span>
         </div>
 
-        <nav className="sidebar-menu ">
-          <div className="sidebar-item " onClick={handleDashboardClick}>
+        <nav className="sidebar-menu">
+          <div className="sidebar-item" onClick={handleDashboardClick}>
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
           </div>
-          <div className="sidebar-item active" onClick={handleResultUpload}>
+          <div className="sidebar-item" onClick={handleResultUpload}>
             <FileSpreadsheet size={20} />
             <span>Upload Results</span>
           </div>
-          <div className="sidebar-item ">
+          <div className="sidebar-item active">
             <MapPin size={20} />
             <span>Upload Venue</span>
           </div>
@@ -361,11 +356,11 @@ CST/21/COM/00754,95,A`;
         <div className="welcome-banner">
           <div className="welcome-text">
             <h2>
-              <FileSpreadsheet size={32} />
-              Upload Student Results
+              <MapPin size={32} />
+              Upload Venue Allocations
             </h2>
             <p className="banner-subtitle">
-              Upload CSV or Excel files containing student results for a specific course
+              Upload CSV or Excel files containing venue allocations for specific courses and levels
             </p>
           </div>
         </div>
@@ -407,63 +402,31 @@ CST/21/COM/00754,95,A`;
                   )}
                 </div>
 
-                {/* Department Selection */}
-                <div className="form-group">
+                {/* Course Code - Text Input */}
+                <div className="form-group full-width">
                   <label className="form-label">
-                    <Building size={18} />
-                    Department *
+                    <BookOpen size={18} />
+                    Course Code *
                   </label>
-                  <div className="select-wrapper">
-                    <select
-                      name="department"
-                      value={formData.department}
-                      onChange={handleInputChange}
-                      className={`form-select ${errors.department ? "error" : ""}`}
-                      disabled={isLoading}
-                    >
-                      <option value="">Select Department</option>
-                      {safeDepartments.map((dept) => (
-                        <option key={dept.id || dept._id} value={dept.id || dept._id}>
-                          {dept.name || dept.departmentName}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={20} className="select-icon" />
-                  </div>
-                  {errors.department && (
+                  <input
+                    type="text"
+                    name="courseCode"
+                    value={formData.courseCode}
+                    onChange={handleInputChange}
+                    className={`form-input ${errors.courseCode ? "error" : ""}`}
+                    placeholder="e.g., CSC 401 or CSC401"
+                    disabled={isLoading}
+                    autoComplete="off"
+                  />
+                  {errors.courseCode && (
                     <div className="error-message">
                       <AlertCircle size={16} />
-                      {errors.department}
+                      {errors.courseCode}
                     </div>
                   )}
-                </div>
-
-                {/* Semester Selection */}
-                <div className="form-group">
-                  <label className="form-label">Semester *</label>
-                  <div className="select-wrapper">
-                    <select
-                      name="semester"
-                      value={formData.semester}
-                      onChange={handleInputChange}
-                      className={`form-select ${errors.semester ? "error" : ""}`}
-                      disabled={isLoading}
-                    >
-                      <option value="">Select Semester</option>
-                      {safeSemesters.map((sem) => (
-                        <option key={sem.id || sem._id} value={sem.id || sem._id}>
-                          {sem.name || sem.semesterName}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={20} className="select-icon" />
+                  <div className="form-hint">
+                    Enter course code in format: ABC 123 or ABC123
                   </div>
-                  {errors.semester && (
-                    <div className="error-message">
-                      <AlertCircle size={16} />
-                      {errors.semester}
-                    </div>
-                  )}
                 </div>
 
                 {/* Session Selection */}
@@ -496,25 +459,11 @@ CST/21/COM/00754,95,A`;
                     </div>
                   )}
                 </div>
-
-                {/* Course Code */}
-                <div className="form-group full-width">
-                  <label className="form-label">Course Code (Optional)</label>
-                  <input
-                    type="text"
-                    name="courseCode"
-                    value={formData.courseCode}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    placeholder="e.g., CSC 401"
-                    disabled={isLoading}
-                  />
-                </div>
               </div>
 
               {/* File Upload Section */}
               <div className="upload-section">
-                <label className="form-label">Upload Results File *</label>
+                <label className="form-label">Upload Venue Allocation File *</label>
 
                 <div
                   className={`upload-area ${formData.file ? "has-file" : ""} ${errors.file ? "error" : ""}`}
@@ -550,7 +499,7 @@ CST/21/COM/00754,95,A`;
                           onClick={(e) => {
                             e.stopPropagation();
                             setFormData(prev => ({ ...prev, file: null }));
-
+                            setPreviewData([]);
                           }}
                           disabled={isLoading}
                         >
@@ -572,6 +521,36 @@ CST/21/COM/00754,95,A`;
                   <div className="error-message">
                     <AlertCircle size={16} />
                     {errors.file}
+                  </div>
+                )}
+
+                {/* File Preview */}
+                {previewData.length > 0 && (
+                  <div className="preview-section">
+                    <h4>File Preview (Sample Data)</h4>
+                    <div className="preview-table-container">
+                      <table className="preview-table">
+                        <thead>
+                          <tr>
+                            <th>Registration Number</th>
+                            <th>Venue</th>
+                            <th>Seat Number</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {previewData.map((row, index) => (
+                            <tr key={index}>
+                              <td>{row.regNumber}</td>
+                              <td>{row.venue}</td>
+                              <td>{row.seatNumber}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="preview-note">
+                      * Showing sample preview. Your file contains more data.
+                    </p>
                   </div>
                 )}
 
@@ -610,7 +589,7 @@ CST/21/COM/00754,95,A`;
                   ) : (
                     <>
                       <UploadCloud size={18} />
-                      Upload Results
+                      Upload Venue Allocations
                     </>
                   )}
                 </button>
@@ -632,6 +611,40 @@ CST/21/COM/00754,95,A`;
               </div>
             )}
           </div>
+
+          {/* Instructions Panel */}
+          <div className="instructions-panel">
+            <h3><Users size={20} /> Instructions</h3>
+            <ul className="instructions-list">
+              <li>
+                <strong>Select Level:</strong> Choose the academic level for the venue allocation
+              </li>
+              <li>
+                <strong>Enter Course Code:</strong> Type the course code (e.g., CSC 401)
+              </li>
+              <li>
+                <strong>Select Session:</strong> Choose the academic session
+              </li>
+              <li>
+                <strong>Upload File:</strong> Upload a CSV/Excel file with student venue allocations
+              </li>
+              <li>
+                <strong>File Format:</strong> Your CSV should have columns:
+                <code>RegistrationNumber, Venue, SeatNumber</code>
+              </li>
+              <li>
+                <strong>Download Template:</strong> Use the template to ensure proper formatting
+              </li>
+            </ul>
+
+            <div className="info-box">
+              <AlertCircle size={18} />
+              <div>
+                <strong>Important:</strong> Ensure all registration numbers in your file
+                exist in the system before uploading.
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
@@ -646,7 +659,7 @@ CST/21/COM/00754,95,A`;
           >
             <Menu size={28} />
           </button>
-          <h1>Upload Results</h1>
+          <h1>Upload Venue</h1>
         </div>
 
         {/* Mobile Profile */}
@@ -662,7 +675,7 @@ CST/21/COM/00754,95,A`;
         {/* Mobile Form */}
         <div className="upload-content-wrapper mobile">
           <form onSubmit={handleSubmit} className="mobile-form">
-            {/* Level */}
+            {/* Level Selection */}
             <div className="form-group">
               <label className="form-label">Level *</label>
               <select
@@ -687,57 +700,31 @@ CST/21/COM/00754,95,A`;
               )}
             </div>
 
-            {/* Department */}
-            <div className="form-group">
-              <label className="form-label">Department *</label>
-              <select
-                name="department"
-                value={formData.department}
+            {/* Course Code - Text Input */}
+            <div className="form-group full-width">
+              <label className="form-label">Course Code *</label>
+              <input
+                type="text"
+                name="courseCode"
+                value={formData.courseCode}
                 onChange={handleInputChange}
-                className={`form-select ${errors.department ? "error" : ""}`}
+                className={`form-input ${errors.courseCode ? "error" : ""}`}
+                placeholder="e.g., CSC 401 or CSC401"
                 disabled={isLoading}
-              >
-                <option value="">Select Department</option>
-                {safeDepartments.map((dept) => (
-                  <option key={dept.id || dept._id} value={dept.id || dept._id}>
-                    {dept.name || dept.departmentName}
-                  </option>
-                ))}
-              </select>
-              {errors.department && (
+                autoComplete="off"
+              />
+              {errors.courseCode && (
                 <div className="error-message">
                   <AlertCircle size={16} />
-                  {errors.department}
+                  {errors.courseCode}
                 </div>
               )}
+              <div className="form-hint">
+                Format: ABC 123 or ABC123
+              </div>
             </div>
 
-            {/* Semester */}
-            <div className="form-group">
-              <label className="form-label">Semester *</label>
-              <select
-                name="semester"
-                value={formData.semester}
-                onChange={handleInputChange}
-                className={`form-select ${errors.semester ? "error" : ""}`}
-                disabled={isLoading}
-              >
-                <option value="">Select Semester</option>
-                {safeSemesters.map((sem) => (
-                  <option key={sem.id || sem._id} value={sem.id || sem._id}>
-                    {sem.name || sem.semesterName}
-                  </option>
-                ))}
-              </select>
-              {errors.semester && (
-                <div className="error-message">
-                  <AlertCircle size={16} />
-                  {errors.semester}
-                </div>
-              )}
-            </div>
-
-            {/* Session */}
+            {/* Session Selection */}
             <div className="form-group">
               <label className="form-label">Session *</label>
               <select
@@ -762,23 +749,9 @@ CST/21/COM/00754,95,A`;
               )}
             </div>
 
-            {/* Course Code */}
-            <div className="form-group">
-              <label className="form-label">Course Code (Optional)</label>
-              <input
-                type="text"
-                name="courseCode"
-                value={formData.courseCode}
-                onChange={handleInputChange}
-                className="form-input"
-                placeholder="e.g., CSC 401"
-                disabled={isLoading}
-              />
-            </div>
-
             {/* File Upload */}
             <div className="upload-section">
-              <label className="form-label">Upload Results File *</label>
+              <label className="form-label">Upload File *</label>
               <div
                 className={`upload-area ${formData.file ? "has-file" : ""} ${errors.file ? "error" : ""}`}
                 onClick={() => !isLoading && fileInputRef.current?.click()}
@@ -830,9 +803,20 @@ CST/21/COM/00754,95,A`;
                 Reset
               </button>
               <button
+                type="button"
+                className="template-btn"
+                onClick={downloadTemplate}
+                disabled={isLoading}
+                style={{ flex: 1 }}
+              >
+                <Download size={18} />
+                Template
+              </button>
+              <button
                 type="submit"
                 className="btn-primary"
                 disabled={isLoading || !formData.file}
+                style={{ flex: 2 }}
               >
                 {isLoading ? (
                   <>
@@ -891,13 +875,21 @@ CST/21/COM/00754,95,A`;
                 <LayoutDashboard size={20} />
                 <span>Dashboard</span>
               </div>
-              <div className="sidebar-item active">
+              <div className="sidebar-item" onClick={handleResultUpload}>
                 <FileSpreadsheet size={20} />
                 <span>Upload Results</span>
+              </div>
+              <div className="sidebar-item active">
+                <MapPin size={20} />
+                <span>Upload Venue</span>
               </div>
               <div className="sidebar-item" onClick={handleProfileClick}>
                 <User size={20} />
                 <span>Profile</span>
+              </div>
+              <div className="sidebar-item" onClick={handleStudentVerification}>
+                <Users size={20} />
+                <span>Verification</span>
               </div>
               <div className="sidebar-item" onClick={handleLogoutClick}>
                 <LogOut size={20} />
@@ -911,4 +903,4 @@ CST/21/COM/00754,95,A`;
   );
 };
 
-export default ResultUploadPage;
+export default VenueUploadPage;

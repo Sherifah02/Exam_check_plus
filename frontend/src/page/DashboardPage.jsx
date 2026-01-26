@@ -13,6 +13,9 @@ import {
   X,
   Phone,
   Sun,
+  FileSpreadsheet,
+  MapPin,
+  Users,
 } from "lucide-react";
 
 import { useState } from "react";
@@ -61,6 +64,10 @@ const DashboardPage = () => {
     }
     navigate("/");
   };
+   const handleDashboardClick = () => navigate("/admin/dashboard");
+  const handleProfileClick = () => navigate("/admin-profile");
+   const handleResultUpload = () => navigate("/admin/result-upload");
+  const handleStudentVerification = () => navigate("/admin/verification");
 
   const cancelLogout = () => {
     setShowLogoutModal(false);
@@ -118,31 +125,34 @@ const DashboardPage = () => {
         </div>
       )}
 
-      <aside className="desktop-sidebar">
+         <aside className="desktop-sidebar">
         <div className="sidebar-logo">
           <ShieldCheck size={28} />
-          <span>ExamCheck+</span>
+          <span>Admin Portal</span>
         </div>
 
         <nav className="sidebar-menu">
-          <div className="sidebar-item active">
+          <div className="sidebar-item" onClick={handleDashboardClick}>
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
           </div>
-          <div className="sidebar-item" onClick={handleProfile}>
+          <div className="sidebar-item" onClick={handleResultUpload}>
+            <FileSpreadsheet size={20} />
+            <span>Upload Results</span>
+          </div>
+          <div className="sidebar-item active">
+            <MapPin size={20} />
+            <span>Upload Venue</span>
+          </div>
+          <div className="sidebar-item" onClick={handleProfileClick}>
             <User size={20} />
             <span>Profile</span>
           </div>
-          {/* ADDED CONTACT ITEM HERE */}
-          <div className="sidebar-item" onClick={handleContact}>
-            <Phone size={20} />
-            <span>Contact</span>
+          <div className="sidebar-item" onClick={handleStudentVerification}>
+            <Users size={20} />
+            <span>Verification</span>
           </div>
-          <div
-            style={{ marginTop: "auto" }}
-            className="sidebar-item"
-            onClick={handleLogoutClick}
-          >
+          <div className="sidebar-item" onClick={handleLogoutClick}>
             <LogOut size={20} />
             <span>Logout</span>
           </div>

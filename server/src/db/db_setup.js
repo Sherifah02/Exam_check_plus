@@ -198,6 +198,29 @@ export const createTables = async () => {
       );
     `);
 
+    await client.query(`
+        CREATE TABLE  IF NOT EXISTS exam.venue_batches (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        session_id UUID NOT NULL REFERENCES academic.academic_sessions(id),
+        course_id UUID REFERENCES academic.courses(id) ON DELETE CASCADE,
+        hall VARCHAR(50) NOT NULL,
+        exam_time TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(course_id, hall, exam_time)
+      );
+      `)
+
+      await client.query(`
+        CREATE TABLE  IF NOT EXISTS exam.seat_allocations (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      batch_id UUID NOT NULL REFERENCES exam.venue_batches(id) ON DELETE CASCADE,
+      student_id UUID NOT NULL REFERENCES academic.students(id) ON DELETE CASCADE,
+      seat_number VARCHAR(20) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(batch_id, seat_number),
+      UNIQUE(batch_id, student_id)
+);
+`)
     await client.query("COMMIT");
     console.log("✅ All schemas and tables created successfully");
   } catch (error) {

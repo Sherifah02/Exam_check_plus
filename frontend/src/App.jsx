@@ -22,6 +22,7 @@ import Layout from "./root/Layout";
 import ProtectedRoute from "./hook/ProtectedRoute";
 import GuestRoute from "./hook/GuestRoute";
 import ResultUploadPage from "./page/ResultUploadPage";
+import VenueUploadPage from "./page/VenuePage";
 
 function App() {
   const router = createBrowserRouter(
@@ -87,6 +88,7 @@ function App() {
         />
         <Route path="/admin/verification" element={<AdminVerification />} />
         <Route path="/admin/result-upload" element={<ResultUploadPage />} />
+        <Route path="/admin/upload-venue" element={<VenueUploadPage />} />
         <Route
           path="/result-check"
           element={

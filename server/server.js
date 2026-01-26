@@ -10,6 +10,7 @@ import departmentRoute from "./src/router/department.route.js";
 import levelRoute from "./src/router/level.route.js";
 import sessionRoute from "./src/router/session.route.js";
 import semesterRoute from "./src/router/semester.route.js";
+import venueRoute from "./src/router/venue.route.js";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use("/api/departments", departmentRoute)
 app.use("/api/levels", levelRoute)
 app.use("/api/sessions", sessionRoute)
 app.use("/api/semester", semesterRoute)
+app.use("/api/venue", venueRoute)
 const startServer = async () => {
   console.log("🔄 Starting server...");
   try {

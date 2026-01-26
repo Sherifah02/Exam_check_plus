@@ -64,10 +64,9 @@ const DashboardPage = () => {
     }
     navigate("/");
   };
-   const handleDashboardClick = () => navigate("/admin/dashboard");
-  const handleProfileClick = () => navigate("/admin-profile");
-   const handleResultUpload = () => navigate("/admin/result-upload");
-  const handleStudentVerification = () => navigate("/admin/verification");
+   const handleDashboardClick = () => navigate("/dashboard");
+  const handleProfileClick = () => navigate("/profile");
+
 
   const cancelLogout = () => {
     setShowLogoutModal(false);
@@ -125,34 +124,31 @@ const DashboardPage = () => {
         </div>
       )}
 
-         <aside className="desktop-sidebar">
+       <aside className="desktop-sidebar">
         <div className="sidebar-logo">
           <ShieldCheck size={28} />
-          <span>Admin Portal</span>
+          <span>ExamCheck+</span>
         </div>
-
         <nav className="sidebar-menu">
-          <div className="sidebar-item" onClick={handleDashboardClick}>
+          <div className="sidebar-item " onClick={() => navigate("/dashboard")}>
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
           </div>
-          <div className="sidebar-item" onClick={handleResultUpload}>
-            <FileSpreadsheet size={20} />
-            <span>Upload Results</span>
-          </div>
-          <div className="sidebar-item active">
-            <MapPin size={20} />
-            <span>Upload Venue</span>
-          </div>
-          <div className="sidebar-item" onClick={handleProfileClick}>
+          <div className="sidebar-item" onClick={() => navigate("/profile")}>
             <User size={20} />
             <span>Profile</span>
           </div>
-          <div className="sidebar-item" onClick={handleStudentVerification}>
-            <Users size={20} />
-            <span>Verification</span>
+
+
+          <div className="sidebar-item" onClick={() => navigate("/contact")}>
+            <Phone size={20} />
+            <span>Contact</span>
           </div>
-          <div className="sidebar-item" onClick={handleLogoutClick}>
+          <div
+            style={{ marginTop: "auto" }}
+            className="sidebar-item"
+            onClick={handleLogoutClick}
+          >
             <LogOut size={20} />
             <span>Logout</span>
           </div>

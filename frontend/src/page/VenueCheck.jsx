@@ -515,7 +515,7 @@ const VenueCheck = () => {
           <span>ExamCheck+</span>
         </div>
         <nav className="sidebar-menu">
-          <div className="sidebar-item" onClick={() => navigate("/dashboard")}>
+          <div className="sidebar-item " onClick={() => navigate("/dashboard")}>
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
           </div>

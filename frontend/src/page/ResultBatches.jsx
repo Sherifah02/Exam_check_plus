@@ -30,6 +30,7 @@ import {
 import { useState, useEffect } from "react";
 import { useResultStore } from "../store/resultStore";
 import { toast } from "react-toastify";
+import { useAuthStore } from "../store/authStore";
 
 
 const AdminResultBatches = () => {
@@ -272,7 +273,15 @@ const AdminResultBatches = () => {
 
   // Logout handlers
   const handleLogoutClick = () => setShowLogoutModal(true);
-  const confirmLogout = () => navigate("/");
+       const { logout } = useAuthStore();
+      const confirmLogout = async () => {
+    const response = await logout();
+    console.log(response);
+    if (response && !response.success) {
+      return;
+    }
+    navigate("/");
+  };
   const cancelLogout = () => setShowLogoutModal(false);
 
   // Action handlers

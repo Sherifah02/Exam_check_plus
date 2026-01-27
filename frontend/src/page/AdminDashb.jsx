@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { useState, useRef } from "react";
+import { useAuthStore } from "../store/authStore";
 
 const AdminDashb = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -25,7 +26,7 @@ const AdminDashb = () => {
  const handleDashboardClick = () => navigate("/admin/dashboard");
   const handleProfileClick = () => navigate("/admin/profile");
   const handleResultUpload = () => navigate("/admin/result-upload");
-
+const {user, logout} = useAuthStore()
   // Logout handlers
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -61,7 +62,12 @@ const AdminDashb = () => {
     setShowLogoutModal(true);
   };
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
+    const response = await logout();
+    console.log(response);
+    if (response && !response.success) {
+      return;
+    }
     navigate("/");
   };
 

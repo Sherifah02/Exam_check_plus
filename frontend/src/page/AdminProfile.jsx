@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { useState } from "react";
+import { useAuthStore } from "../store/authStore";
 
 const AdminProfile = () => {
   const navigate = useNavigate();
@@ -25,12 +26,12 @@ const AdminProfile = () => {
 
   // --- LOGOUT MODAL STATE ---
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
+  const {user, logout} = useAuthStore()
   // --- STATE FOR ADMIN DATA ---
   const [userData, setUserData] = useState({
-    fullName: "System Administrator", // Default Admin Name
-    userId: "ADM-2024-001",
-    email: "admin@examcheck.com",
+    fullName: user?.full_name || "System Administrator", // Default Admin Name
+    role: user?.role || "ADM-2024-001",
+    email: user?.email || "admin@examcheck.com",
   });
 
   // --- STATE FOR EMAIL EDITING ---
@@ -41,7 +42,7 @@ const AdminProfile = () => {
 
   // --- HANDLERS ---
   const handleCopyId = () => {
-    navigator.clipboard.writeText(userData.userId);
+    navigator.clipboard.writeText(userData.role);
     setShowCopyTooltip(true);
     setTimeout(() => setShowCopyTooltip(false), 2000);
   };
@@ -72,8 +73,13 @@ const handleDashboardClick = () => navigate("/admin/dashboard");
     setShowLogoutModal(true);
   };
 
-  const confirmLogout = () => {
-    navigate("/admin/login"); // Navigates back to Admin Login
+  const confirmLogout = async () => {
+    const response = await logout();
+    console.log(response);
+    if (response && !response.success) {
+      return;
+    }
+    navigate("/");
   };
 
   const cancelLogout = () => {
@@ -159,7 +165,7 @@ const handleDashboardClick = () => navigate("/admin/dashboard");
               <div className="info-row">
                 <span className="info-label">User ID</span>
                 <div className="info-value">
-                  <span>{userData.userId}</span>
+                  <span>{userData.role}</span>
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span
                       className={`copy-tooltip ${showCopyTooltip ? "show" : ""}`}
@@ -248,7 +254,7 @@ const handleDashboardClick = () => navigate("/admin/dashboard");
             <div className="info-row">
               <span className="info-label">User ID</span>
               <div className="info-value">
-                <span style={{ fontSize: "0.9rem" }}>{userData.userId}</span>
+                <span style={{ fontSize: "0.9rem" }}>{userData.role}</span>
                 <button className="icon-btn" onClick={handleCopyId}>
                   <Copy size={18} />
                 </button>

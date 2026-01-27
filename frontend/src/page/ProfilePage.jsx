@@ -96,8 +96,13 @@ const ProfilePage = () => {
     setShowLogoutModal(true);
   };
 
-  const confirmLogout = () => {
-    logout(); // Call logout from auth store
+
+      const confirmLogout = async () => {
+    const response = await logout();
+    console.log(response);
+    if (response && !response.success) {
+      return;
+    }
     navigate("/");
   };
 

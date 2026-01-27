@@ -24,6 +24,7 @@ import {
 import { useState, useRef, useEffect } from "react";
 import { useGeneralStore } from "../store/genStore";
 import { useResultStore } from "../store/resultStore";
+import { useAuthStore } from "../store/authStore";
 
 const ResultUploadPage = () => {
   const navigate = useNavigate();
@@ -95,7 +96,15 @@ const ResultUploadPage = () => {
   };
   // Logout handlers
   const handleLogoutClick = () => setShowLogoutModal(true);
-  const confirmLogout = () => navigate("/");
+       const { logout } = useAuthStore();
+      const confirmLogout = async () => {
+    const response = await logout();
+    console.log(response);
+    if (response && !response.success) {
+      return;
+    }
+    navigate("/");
+  };
   const cancelLogout = () => setShowLogoutModal(false);
 
   // Form handlers

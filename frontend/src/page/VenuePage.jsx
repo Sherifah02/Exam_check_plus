@@ -25,6 +25,7 @@ import {
 import { useState, useRef, useEffect } from "react";
 import { useGeneralStore } from "../store/genStore";
 import { useVenueStore } from "../store/venueStore";
+import { useAuthStore } from "../store/authStore";
 
 const VenueUploadPage = () => {
   const navigate = useNavigate();
@@ -84,7 +85,15 @@ const VenueUploadPage = () => {
 
   // Logout handlers
   const handleLogoutClick = () => setShowLogoutModal(true);
-  const confirmLogout = () => navigate("/");
+       const { logout } = useAuthStore();
+      const confirmLogout = async () => {
+    const response = await logout();
+    console.log(response);
+    if (response && !response.success) {
+      return;
+    }
+    navigate("/");
+  };
   const cancelLogout = () => setShowLogoutModal(false);
 
   // Form handlers

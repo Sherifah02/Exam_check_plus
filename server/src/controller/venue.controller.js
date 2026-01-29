@@ -48,6 +48,12 @@ export const addVenue = async (req, res) => {
 
     // Create or reuse venue batch using first row
     const firstRow = venue_data[0];
+    if(firstRow.course_code !== course_code ){
+      return res.status(400).json({
+        success:false,
+        message:"Course do not match"
+      })
+    }
     const venue_batch = await VenueBatch.create({
       session_id:session_exist.id,
       course_id: course_exist.id,

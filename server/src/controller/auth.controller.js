@@ -178,7 +178,7 @@ export const login = async (req, res) => {
 
     const now = Date.now();
     const expiresAt = new Date(user.expires_at).getTime();
-    console.log(user)
+
     console.log(expiresAt)
     if (!isPassword) {
       return res.status(400).json({
@@ -218,7 +218,6 @@ export const login = async (req, res) => {
 };
 export const getAuthenticated = async (req, res) => {
   const { user_id, role } = req.user;
-  console.table(req.user)
   try {
     let userData;
 

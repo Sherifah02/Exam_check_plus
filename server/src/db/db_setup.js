@@ -230,8 +230,17 @@ export const createTables = async () => {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(batch_id, seat_number),
       UNIQUE(batch_id, student_id)
-);
+)
 `)
+await client.query(`
+  CREATE TABLE IF NOT EXISTS exam.result_checking (
+    id INT PRIMARY KEY DEFAULT 1,
+    status BOOLEAN NOT NULL DEFAULT false,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT single_row CHECK (id = 1)
+  );
+`);
+
     await client.query("COMMIT");
     console.log("✅ All schemas and tables created successfully");
   } catch (error) {

@@ -220,3 +220,64 @@ export const deleteBatch = async (req, res) => {
     });
   }
 };
+export const toggleResultChecking = async (req, res) => {
+  const { status } = req.body;
+
+  if (typeof status !== "boolean") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid status value; must be true or false",
+    });
+  }
+
+  try {
+    const response = await pool.query(
+      `
+      UPDATE exam.result_checking
+      SET status = $1, updated_at = NOW()
+      WHERE id = 1
+      RETURNING status, updated_at
+      `,
+      [status],
+    );
+    console.log(response.rows)
+    if (response.rowCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Result checking control not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Result checking ${status ? "enabled" : "disabled"}`,
+      data: response.rows[0],
+    });
+  } catch (error) {
+    console.error("❌ toggleResultChecking error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update result checking status",
+    });
+  }
+};
+export const check_result_status = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT status FROM exam.result_checking WHERE id = 1`,
+    );
+
+    const isOpen = result.rows[0].status;
+    return res.status(200).json({
+      success: true,
+      message: "Status fetched",
+      isOpen,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

@@ -2,6 +2,7 @@ import { seedAdmins } from "./admin.seed.js";
 import { seedCourses } from "./course.seed.js";
 import { seedDepartments } from "./department.seed.js";
 import { seedLevels } from "./level.seed.js";
+import { seedResultChecking } from "./seed.resultStaus.js";
 import { seedSemesters } from "./semester.seed.js";
 import { seedAcademicSessions } from "./session.seed.js";
 import { seedStudents } from "./student.seed.js";
@@ -14,6 +15,7 @@ const runSeeds = async () => {
   await seedSemesters()
   await seedCourses();
   await seedAdmins()
+  await seedResultChecking()
 };
 
 runSeeds();

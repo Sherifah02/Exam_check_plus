@@ -267,7 +267,7 @@ const AdminResultBatches = () => {
 
   // Navigation handlers
   const handleDashboardClick = () => navigate("/admin/dashboard");
-  const handleResultUpload = () => navigate("/admin/upload-result");
+  const handleResultUpload = () => navigate("/admin/result-upload");
   const handleVenueUpload = () => navigate("/admin/upload-venue");
   const handleProfileClick = () => navigate("/admin/profile");
 
@@ -284,20 +284,6 @@ const AdminResultBatches = () => {
   };
   const cancelLogout = () => setShowLogoutModal(false);
 
-  // Action handlers
-  const handleViewBatch = (batchId) => {
-    navigate(`/admin/batch/${batchId}`);
-  };
-
-  const handleDownloadBatch = async (batchId) => {
-    try {
-      await downloadResults(batchId);
-      // API should trigger file download
-    } catch (error) {
-      console.error("Failed to download batch:", error);
-      alert("Failed to download batch. Please try again.");
-    }
-  };
 
   const handleDeleteClick = (batchId) => {
     setShowDeleteModal(batchId);

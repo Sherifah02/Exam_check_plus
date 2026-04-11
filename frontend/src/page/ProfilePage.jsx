@@ -109,7 +109,7 @@ const ProfilePage = () => {
   const cancelLogout = () => {
     setShowLogoutModal(false);
   };
-
+console.log(user.level)
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -229,16 +229,16 @@ const ProfilePage = () => {
               <div className="info-row">
                 <span className="info-label">Department</span>
                 <div className="info-value">
-                  {user?.department || "Not specified"}
+                  {user?.department ? `${user.department}` : "Not specified"}
                   <BookOpen size={18} className="text-gray-400" />
                 </div>
               </div>
 
-              {/* 3. LEVEL/YEAR OF STUDY */}
+              {/* 3. LEVEL/Level */}
               <div className="info-row">
-                <span className="info-label">Year of Study</span>
+                <span className="info-label">Level</span>
                 <div className="info-value">
-                  {user?.year_of_study ? `${user.year_of_study}00 Level` : "N/A"}
+                  {user?.level ? `${user.level}` : "N/A"}
                   <Layers size={18} className="text-gray-400" />
                 </div>
               </div>
@@ -367,7 +367,7 @@ const ProfilePage = () => {
             </div>
 
             <div className="info-row">
-              <span className="info-label">Year of Study</span>
+              <span className="info-label">Level</span>
               <div className="info-value">
                 {user?.year_of_study ? `${user.year_of_study}00 Level` : "N/A"}
               </div>

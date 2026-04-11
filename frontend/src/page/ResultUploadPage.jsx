@@ -19,6 +19,8 @@ import {
   ChevronDown,
   MapPin,
   Users,
+  Loader2,
+  Power,
 } from "lucide-react";
 
 import { useState, useRef, useEffect } from "react";
@@ -36,7 +38,8 @@ const ResultUploadPage = () => {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
+  const [isToggleLoading, setIsToggleLoading] = useState(false);
+  const [toggleStatusMessage, setToggleStatusMessage] = useState(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -62,7 +65,63 @@ const ResultUploadPage = () => {
     fetchSessions,
   } = useGeneralStore();
 
-  const { uploadResult } = useResultStore();
+  const { uploadResult, checkResultStatus, toggleResultStatus, result_status } = useResultStore();
+
+  // Check initial result status
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        await checkResultStatus();
+      } catch (error) {
+        console.error("Failed to check result status:", error);
+      }
+    };
+    checkStatus();
+  }, []);
+
+  // Handle result status toggle with loading state
+  const handleResultStatusToggle = async () => {
+    if (isToggleLoading) return;
+
+    try {
+      setIsToggleLoading(true);
+      setToggleStatusMessage(null);
+
+      const payload = { status: !result_status };
+      const response = await toggleResultStatus(payload);
+      console.log(response)
+      if (response?.success) {
+        setToggleStatusMessage({
+          type: "success",
+          message: `Result checking ${!result_status ? "activated" : "deactivated"} successfully!`,
+          details: !result_status
+            ? "Students can now check their results"
+            : "Result checking has been temporarily disabled",
+        });
+
+        // Clear the message after 5 seconds
+        setTimeout(() => {
+          setToggleStatusMessage(null);
+        }, 5000);
+      } else {
+        throw new Error(response?.message || "Failed to update status");
+      }
+    } catch (error) {
+      console.error("Toggle error:", error);
+      setToggleStatusMessage({
+        type: "error",
+        message: "Failed to update result checking status",
+        details: error.message || "Please try again later",
+      });
+
+      // Clear error message after 5 seconds
+      setTimeout(() => {
+        setToggleStatusMessage(null);
+      }, 5000);
+    } finally {
+      setIsToggleLoading(false);
+    }
+  };
 
   // Initialize data
   useEffect(() => {
@@ -90,14 +149,15 @@ const ResultUploadPage = () => {
   // Navigation handlers
   const handleDashboardClick = () => navigate("/admin/dashboard");
   const handleProfileClick = () => navigate("/admin-profile");
-   const handleResultUpload = () => navigate("/admin/result-upload");
- const handleVenueClick = () => {
+  const handleResultUpload = () => navigate("/admin/result-upload");
+  const handleVenueClick = () => {
     navigate("/admin/upload-venue");
   };
+
   // Logout handlers
   const handleLogoutClick = () => setShowLogoutModal(true);
-       const { logout } = useAuthStore();
-      const confirmLogout = async () => {
+  const { logout } = useAuthStore();
+  const confirmLogout = async () => {
     const response = await logout();
     console.log(response);
     if (response && !response.success) {
@@ -157,8 +217,6 @@ const ResultUploadPage = () => {
 
     setFormData(prev => ({ ...prev, file }));
     setErrors(prev => ({ ...prev, file: "" }));
-
-
   };
 
   const handleDrop = (e) => {
@@ -274,6 +332,8 @@ CST/21/COM/00754,95,A`;
     }
   };
 
+  const { user } = useAuthStore();
+
   const resetForm = () => {
     setFormData({
       level: "",
@@ -321,7 +381,7 @@ CST/21/COM/00754,95,A`;
       )}
 
       {/* Desktop Sidebar */}
-         <aside className="desktop-sidebar">
+      <aside className="desktop-sidebar">
         <div className="sidebar-logo">
           <ShieldCheck size={28} />
           <span>Admin Portal</span>
@@ -336,11 +396,11 @@ CST/21/COM/00754,95,A`;
             <FileSpreadsheet size={20} />
             <span>Upload Results</span>
           </div>
-          <div className="sidebar-item " onClick={()=>  navigate("/admin/upload-venue")}>
+          <div className="sidebar-item" onClick={() => navigate("/admin/upload-venue")}>
             <Building size={20} />
             <span>Upload Venue</span>
           </div>
-          <div className="sidebar-item " onClick={()=> navigate("/admin/results/batches")}>
+          <div className="sidebar-item" onClick={() => navigate("/admin/results/batches")}>
             <FileSpreadsheet size={20} />
             <span>Result Batches</span>
           </div>
@@ -363,13 +423,53 @@ CST/21/COM/00754,95,A`;
             <div className="profile-avatar">
               <User size={24} />
             </div>
-            <span className="profile-name">Admin User</span>
+            <span className="profile-name">{user.full_name || "Admin"}</span>
           </div>
 
-          <button
-          onClick={()=> navigate('/admin/results/batches')}
-          className="view-result-button">View Uploaded result</button>
+          {/* Toggle Button Container */}
+          <div className="button-container">
+            <button
+              onClick={handleResultStatusToggle}
+              className={`primary-button ${result_status ? 'active' : 'inactive'}`}
+              disabled={isToggleLoading}
+            >
+              {isToggleLoading ? (
+                <>
+                  <Loader2 size={16} className="spin" />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Power size={16} />
+                  {result_status ? "Deactivate Result Checking" : "Activate Result Checking"}
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/results/batches')}
+              className="secondary-button"
+            >
+              <FileSpreadsheet size={16} />
+              View Uploaded Results
+            </button>
+          </div>
         </div>
+
+        {/* Toggle Status Message */}
+        {toggleStatusMessage && (
+          <div className={`status-message ${toggleStatusMessage.type}`} style={{ margin: '10px 20px' }}>
+            {toggleStatusMessage.type === "success" ? (
+              <CheckCircle size={20} />
+            ) : (
+              <AlertCircle size={20} />
+            )}
+            <div className="status-content">
+              <h4>{toggleStatusMessage.message}</h4>
+              <p>{toggleStatusMessage.details}</p>
+            </div>
+          </div>
+        )}
 
         {/* Page Header */}
         <div className="welcome-banner">
@@ -381,6 +481,16 @@ CST/21/COM/00754,95,A`;
             <p className="banner-subtitle">
               Upload CSV or Excel files containing student results for a specific course
             </p>
+          </div>
+        </div>
+
+        {/* Current Status Indicator */}
+        <div className="status-indicator-container">
+          <div className={`status-badge ${result_status ? 'status-active' : 'status-inactive'}`}>
+            <div className="status-dot"></div>
+            <span>
+              Result checking is currently <strong>{result_status ? "ACTIVE" : "INACTIVE"}</strong>
+            </span>
           </div>
         </div>
 
@@ -564,7 +674,6 @@ CST/21/COM/00754,95,A`;
                           onClick={(e) => {
                             e.stopPropagation();
                             setFormData(prev => ({ ...prev, file: null }));
-
                           }}
                           disabled={isLoading}
                         >
@@ -672,6 +781,47 @@ CST/21/COM/00754,95,A`;
             <p className="profile-welcome">Welcome, Admin</p>
           </div>
         </div>
+
+        {/* Mobile Toggle Section */}
+        <div className="mobile-toggle-section">
+          <button
+            onClick={handleResultStatusToggle}
+            className={`mobile-toggle-btn ${result_status ? 'active' : 'inactive'}`}
+            disabled={isToggleLoading}
+          >
+            {isToggleLoading ? (
+              <>
+                <Loader2 size={16} className="spin" />
+                Updating...
+              </>
+            ) : (
+              <>
+                <Power size={16} />
+                {result_status ? "Deactivate" : "Activate"} Result Checking
+              </>
+            )}
+          </button>
+
+          <div className="mobile-status-badge">
+            <div className={`status-dot ${result_status ? 'dot-active' : 'dot-inactive'}`}></div>
+            <span>Status: {result_status ? "Active" : "Inactive"}</span>
+          </div>
+        </div>
+
+        {/* Mobile Toggle Status Message */}
+        {toggleStatusMessage && (
+          <div className={`status-message mobile ${toggleStatusMessage.type}`}>
+            {toggleStatusMessage.type === "success" ? (
+              <CheckCircle size={16} />
+            ) : (
+              <AlertCircle size={16} />
+            )}
+            <div className="status-content">
+              <h5>{toggleStatusMessage.message}</h5>
+              <p>{toggleStatusMessage.details}</p>
+            </div>
+          </div>
+        )}
 
         {/* Mobile Form */}
         <div className="upload-content-wrapper mobile">
@@ -908,6 +1058,14 @@ CST/21/COM/00754,95,A`;
               <div className="sidebar-item active">
                 <FileSpreadsheet size={20} />
                 <span>Upload Results</span>
+              </div>
+              <div className="sidebar-item" onClick={() => navigate("/admin/upload-venue")}>
+                <Building size={20} />
+                <span>Upload Venue</span>
+              </div>
+              <div className="sidebar-item" onClick={() => navigate("/admin/results/batches")}>
+                <FileSpreadsheet size={20} />
+                <span>Result Batches</span>
               </div>
               <div className="sidebar-item" onClick={handleProfileClick}>
                 <User size={20} />

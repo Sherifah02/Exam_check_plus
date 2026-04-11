@@ -29,8 +29,8 @@ api.interceptors.response.use(
       }
 
       const { logout, resetAuthState } = useAuthStore.getState();
-      if (logout) await logout(false);
-      if (resetAuthState) resetAuthState();
+      // if (logout) await logout(false);
+      // if (resetAuthState) resetAuthState();
     }
 
     return Promise.reject(error);

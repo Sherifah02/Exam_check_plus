@@ -92,25 +92,30 @@ export class User extends Person {
   static async findByRegNum(reg_number, client = pool) {
     try {
       const query = `
-        SELECT
-          u.id AS user_id,
-          u.password_hash,
-          u.role,
-          u.expires_at,
-          u.created_at AS user_created_at,
-          s.id AS student_id,
-          s.reg_number,
-          s.first_name,
-          s.last_name,
-          s.email,
-          s.phone_number,
-          s.department_id,
-          s.level_id
-        FROM auth.users u
-        INNER JOIN academic.students s ON u.student_id = s.id
-        WHERE s.reg_number = $1
-        LIMIT 1;
-      `;
+      SELECT
+        u.id AS user_id,
+        u.password_hash,
+        u.role,
+        u.expires_at,
+        u.created_at AS user_created_at,
+        s.id AS student_id,
+        s.reg_number,
+        s.first_name,
+        s.last_name,
+        s.email,
+        s.phone_number,
+        s.department_id,
+        s.level_id,
+        d.name AS department,
+        l.name AS level
+      FROM auth.users u
+      INNER JOIN academic.students s ON u.student_id = s.id
+      LEFT JOIN academic.departments d ON d.id = s.department_id
+      LEFT JOIN academic.levels l ON l.id = s.level_id
+      WHERE s.reg_number = $1
+      LIMIT 1;
+    `;
+
       const result = await client.query(query, [reg_number]);
       return result.rows[0] || null;
     } catch (error) {

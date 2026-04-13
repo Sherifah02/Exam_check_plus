@@ -199,6 +199,7 @@
     padding: 30px;
     height: 100vh;
     position: sticky;
+    overflow-y: auto;
     top: 0;
   }
 

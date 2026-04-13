@@ -24,6 +24,7 @@ import GuestRoute from "./hook/GuestRoute";
 import ResultUploadPage from "./page/ResultUploadPage";
 import VenueUploadPage from "./page/VenuePage";
 import AdminResultBatches from "./page/ResultBatches";
+import AdminVenueBatches from "./page/VenueBatch";
 
 function App() {
   const router = createBrowserRouter(
@@ -92,6 +93,14 @@ function App() {
           element={
             <ProtectedRoute requiredRole={["admin"]}>
               <AdminResultBatches />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/venues/batches"
+          element={
+            <ProtectedRoute requiredRole={["admin"]}>
+              <AdminVenueBatches />
             </ProtectedRoute>
           }
         />

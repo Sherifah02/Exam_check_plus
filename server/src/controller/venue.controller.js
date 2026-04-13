@@ -48,14 +48,14 @@ export const addVenue = async (req, res) => {
 
     // Create or reuse venue batch using first row
     const firstRow = venue_data[0];
-    if(firstRow.course_code !== course_code ){
+    if (firstRow.course_code !== course_code) {
       return res.status(400).json({
-        success:false,
-        message:"Course do not match"
+        success: false,
+        message: "Course do not match"
       })
     }
     const venue_batch = await VenueBatch.create({
-      session_id:session_exist.id,
+      session_id: session_exist.id,
       course_id: course_exist.id,
       hall: firstRow.hall,
       exam_time: firstRow.exam_time,
@@ -143,5 +143,22 @@ export const checkVenue = async (req, res) => {
   } catch (error) {
     console.error("❌ checkVenue error:", error.message);
     res.status(500).json({ success: false, message: "Failed to fetch venue" });
+  }
+};
+
+export const getVenueBatches = async (req, res) => {
+  try {
+    const venueBatches = await VenueBatch.getAll();
+
+    return res.json({
+      success: true,
+      data: venueBatches,
+    });
+  } catch (error) {
+    console.error("❌ getVenueBatches error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch venue batches",
+    });
   }
 };

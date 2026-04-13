@@ -135,6 +135,10 @@ const handleDashboardClick = () => navigate("/admin/dashboard");
                   <FileSpreadsheet size={20} />
                   <span>Result Batches</span>
                 </div>
+                <div className="sidebar-item" onClick={()=>  navigate("/admin/venues/batches")}>
+                  <FileSpreadsheet size={20} />
+                  <span>Venue Batches</span>
+                </div>
                 <div className="sidebar-item active" onClick={handleProfileClick}>
                   <User size={20} />
                   <span>Profile</span>

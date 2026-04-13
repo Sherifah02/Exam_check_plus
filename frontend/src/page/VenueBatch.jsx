@@ -9,39 +9,33 @@ import {
   FileSpreadsheet,
   Search,
   Filter,
-  Download,
-  Eye,
   Trash2,
   ChevronDown,
   Calendar,
   GraduationCap,
   Building,
-  BookOpen,
-  CheckCircle,
-  XCircle,
   Clock,
   AlertCircle,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
 } from "lucide-react";
 
 import { useState, useEffect } from "react";
-import { useResultStore } from "../store/resultStore";
 import { toast } from "react-toastify";
 import { useAuthStore } from "../store/authStore";
+import { useVenueStore } from "../store/venueStore";
 
-
-const AdminResultBatches = () => {
+const AdminVenueBatches = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
 
-  // State for batches and UI
-  const [batches, setBatches] = useState([]);
-  const [filteredBatches, setFilteredBatches] = useState([]);
+  // State for venue batches and UI
+  const [venueBatches, setVenueBatches] = useState([]);
+  const [filteredVenueBatches, setFilteredVenueBatches] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -58,223 +52,126 @@ const AdminResultBatches = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Get result store functions
-  const { fetchResultBatches, deleteResultBatch, downloadResults } = useResultStore();
+  const { fetchVenueBatches } = useVenueStore();
 
-  // Load batches on mount
+  // Load venue batches on mount
   useEffect(() => {
-    loadBatches();
+    loadVenueBatches();
   }, []);
 
   // Apply filters when filters change
   useEffect(() => {
     applyFilters();
-  }, [filters, batches]);
+  }, [filters, venueBatches]);
 
-  const loadBatches = async () => {
+  const loadVenueBatches = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Mock data - replace with actual API call
-      // const mockBatches = [
-      //   {
-      //     id: "b7f3a1c2-d4e5-4f67-8901-234567890abc",
-      //     department: "Computer Science",
-      //     level: "300",
-      //     session: "2024/2025",
-      //     semester: "First",
-      //     course_code: "CST301",
-      //     course_title: "Algorithms",
-      //     created_at: "2026-01-10T09:20:11.000Z",
-      //     total_students: 45,
-      //     processed: 45,
-      //     status: "completed",
-      //   },
-      //   {
-      //     id: "c8g4b2d3-e5f6-5g78-9012-34567890abcd",
-      //     department: "Computer Science",
-      //     level: "400",
-      //     session: "2024/2025",
-      //     semester: "Second",
-      //     course_code: "CST401",
-      //     course_title: "Artificial Intelligence",
-      //     created_at: "2026-01-15T14:30:25.000Z",
-      //     total_students: 38,
-      //     processed: 38,
-      //     status: "completed",
-      //   },
-      //   {
-      //     id: "d9h5c3e4-f6g7-6h89-0123-4567890abcde",
-      //     department: "Mathematics",
-      //     level: "200",
-      //     session: "2023/2024",
-      //     semester: "First",
-      //     course_code: "MAT201",
-      //     course_title: "Calculus II",
-      //     created_at: "2025-12-05T11:15:42.000Z",
-      //     total_students: 52,
-      //     processed: 50,
-      //     status: "partial",
-      //   },
-      //   {
-      //     id: "e0i6d4f5-g7h8-7i90-1234-567890abcdef",
-      //     department: "Physics",
-      //     level: "100",
-      //     session: "2023/2024",
-      //     semester: "Second",
-      //     course_code: "PHY102",
-      //     course_title: "Modern Physics",
-      //     created_at: "2025-11-20T16:45:18.000Z",
-      //     total_students: 60,
-      //     processed: 0,
-      //     status: "pending",
-      //   },
-      //   {
-      //     id: "f1j7e5g6-h8i9-8j01-2345-67890abcdefg",
-      //     department: "Computer Science",
-      //     level: "300",
-      //     session: "2024/2025",
-      //     semester: "First",
-      //     course_code: "CST302",
-      //     course_title: "Database Systems",
-      //     created_at: "2026-01-12T10:05:33.000Z",
-      //     total_students: 48,
-      //     processed: 48,
-      //     status: "completed",
-      //   },
-      //   {
-      //     id: "g2k8f6h7-i9j0-9k12-3456-7890abcdefgh",
-      //     department: "Electrical Engineering",
-      //     level: "400",
-      //     session: "2024/2025",
-      //     semester: "Second",
-      //     course_code: "EEE401",
-      //     course_title: "Power Systems",
-      //     created_at: "2026-01-18T13:20:47.000Z",
-      //     total_students: 42,
-      //     processed: 42,
-      //     status: "completed",
-      //   },
-      //   {
-      //     id: "h3l9g7i8-j0k1-0l23-4567-890abcdefghi",
-      //     department: "Computer Science",
-      //     level: "200",
-      //     session: "2023/2024",
-      //     semester: "First",
-      //     course_code: "CST201",
-      //     course_title: "Data Structures",
-      //     created_at: "2025-12-15T09:30:55.000Z",
-      //     total_students: 55,
-      //     processed: 54,
-      //     status: "partial",
-      //   },
-      //   {
-      //     id: "i4m0h8j9-k1l2-1m34-5678-90abcdefghij",
-      //     department: "Chemistry",
-      //     level: "100",
-      //     session: "2023/2024",
-      //     semester: "Second",
-      //     course_code: "CHE102",
-      //     course_title: "Organic Chemistry",
-      //     created_at: "2025-11-25T15:10:29.000Z",
-      //     total_students: 65,
-      //     processed: 65,
-      //     status: "completed",
-      //   },
-      // ];
+      const response = await fetchVenueBatches();
 
+      if (!response.success) {
+        throw new Error("Failed to load venue batches");
+      }
 
-      const response = await fetchResultBatches();
-      setBatches(response.data || response);
-
-      // setBatches(mockBatches);
-      // setFilteredBatches(mockBatches);
+      setVenueBatches(response.data || []);
+      setFilteredVenueBatches(response.data || []);
     } catch (error) {
-      console.error("Failed to load batches:", error);
-      setError("Failed to load result batches. Please try again.");
+      console.error("Failed to load venue batches:", error);
+      setError("Failed to load venue batches. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const applyFilters = () => {
-    let filtered = [...batches];
+    let filtered = [...venueBatches];
 
     // Apply search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(batch =>
-        batch.course_code.toLowerCase().includes(searchLower) ||
-        batch.course_title.toLowerCase().includes(searchLower) ||
-        batch.department.toLowerCase().includes(searchLower)
+      filtered = filtered.filter(
+        (batch) =>
+          (batch.course_code || "").toLowerCase().includes(searchLower) ||
+          (batch.course_title || "").toLowerCase().includes(searchLower) ||
+          (batch.department || "").toLowerCase().includes(searchLower) ||
+          (batch.venue || "").toLowerCase().includes(searchLower),
       );
     }
 
     // Apply department filter
     if (filters.department) {
-      filtered = filtered.filter(batch => batch.department === filters.department);
+      filtered = filtered.filter(
+        (batch) => batch.department === filters.department,
+      );
     }
 
     // Apply level filter
     if (filters.level) {
-      filtered = filtered.filter(batch => batch.level === filters.level);
+      filtered = filtered.filter((batch) => batch.level === filters.level);
     }
 
     // Apply session filter
     if (filters.session) {
-      filtered = filtered.filter(batch => batch.session === filters.session);
+      filtered = filtered.filter((batch) => batch.session === filters.session);
     }
 
     // Apply semester filter
     if (filters.semester) {
-      filtered = filtered.filter(batch => batch.semester === filters.semester);
+      filtered = filtered.filter(
+        (batch) => batch.semester === filters.semester,
+      );
     }
 
-    // Apply status filter
-
-
-    setFilteredBatches(filtered);
+    setFilteredVenueBatches(filtered);
     setCurrentPage(1); // Reset to first page when filters change
   };
 
   // Get unique values for filters
-  const departments = [...new Set(batches.map(batch => batch.department))];
-  const levels = [...new Set(batches.map(batch => batch.level))];
-  const sessions = [...new Set(batches.map(batch => batch.session))];
-  const semesters = [...new Set(batches.map(batch => batch.semester))];
+  const departments = [
+    ...new Set(venueBatches.map((batch) => batch.department).filter(Boolean)),
+  ];
+  const levels = [
+    ...new Set(venueBatches.map((batch) => batch.level).filter(Boolean)),
+  ];
+  const sessions = [
+    ...new Set(venueBatches.map((batch) => batch.session).filter(Boolean)),
+  ];
+  const semesters = [
+    ...new Set(venueBatches.map((batch) => batch.semester).filter(Boolean)),
+  ];
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredBatches.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredVenueBatches.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentBatches = filteredBatches.slice(startIndex, endIndex);
+  const currentBatches = filteredVenueBatches.slice(startIndex, endIndex);
 
   // Format date for display
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
-
-  // Get status badge style
-
 
   // Navigation handlers
   const handleDashboardClick = () => navigate("/admin/dashboard");
   const handleResultUpload = () => navigate("/admin/result-upload");
   const handleVenueUpload = () => navigate("/admin/upload-venue");
   const handleProfileClick = () => navigate("/admin/profile");
-const handleVenueBatchClick = () => navigate("/admin/venues/batches");
+  const handleResultBatchClick = () => navigate("/admin/result-batches");
+  const handleVenueBatchClick = () => navigate("/admin/venue-batches");
+
   // Logout handlers
   const handleLogoutClick = () => setShowLogoutModal(true);
-       const { logout } = useAuthStore();
-      const confirmLogout = async () => {
+  const { logout } = useAuthStore();
+  const confirmLogout = async () => {
     const response = await logout();
     console.log(response);
     if (response && !response.success) {
@@ -284,7 +181,6 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
   };
   const cancelLogout = () => setShowLogoutModal(false);
 
-
   const handleDeleteClick = (batchId) => {
     setShowDeleteModal(batchId);
   };
@@ -293,14 +189,18 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
     if (!showDeleteModal) return;
 
     try {
-     const response = await deleteResultBatch(showDeleteModal);
-    if(!response.success)return
-     // Remove from local state
-      setBatches(batches.filter(batch => batch.id !== showDeleteModal));
-      toast.success("Batch deleted successfully!");
+      // Replace with venue-specific delete API call
+      // const response = await deleteVenueBatch(showDeleteModal);
+      // if(!response.success) return
+
+      // Remove from local state
+      setVenueBatches(
+        venueBatches.filter((batch) => batch.id !== showDeleteModal),
+      );
+      toast.success("Venue batch deleted successfully!");
     } catch (error) {
-      console.error("Failed to delete batch:", error);
-      alert("Failed to delete batch. Please try again.");
+      console.error("Failed to delete venue batch:", error);
+      alert("Failed to delete venue batch. Please try again.");
     } finally {
       setShowDeleteModal(null);
     }
@@ -312,9 +212,9 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -325,7 +225,6 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
       level: "",
       session: "",
       semester: "",
-      status: "",
     });
   };
 
@@ -353,13 +252,20 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
       {showDeleteModal && (
         <div className="modal-overlay">
           <div className="modal-box">
-            <h3 style={{ color: "#dc2626" }}>Delete Batch</h3>
-            <p>Are you sure you want to delete this result batch? This action cannot be undone.</p>
+            <h3 style={{ color: "#dc2626" }}>Delete Venue Batch</h3>
+            <p>
+              Are you sure you want to delete this venue batch? This action
+              cannot be undone.
+            </p>
             <div className="modal-actions">
               <button className="btn-cancel" onClick={cancelDelete}>
                 Cancel
               </button>
-              <button className="btn-confirm" style={{ backgroundColor: "#dc2626" }} onClick={confirmDelete}>
+              <button
+                className="btn-confirm"
+                style={{ backgroundColor: "#dc2626" }}
+                onClick={confirmDelete}
+              >
                 Delete
               </button>
             </div>
@@ -387,12 +293,12 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
             <Building size={20} />
             <span>Upload Venue</span>
           </div>
-          <div className="sidebar-item active">
+          <div className="sidebar-item" onClick={handleResultBatchClick}>
             <FileSpreadsheet size={20} />
             <span>Result Batches</span>
           </div>
-          <div className="sidebar-item " onClick={handleVenueBatchClick}>
-            <FileSpreadsheet size={20} />
+          <div className="sidebar-item active" onClick={handleVenueBatchClick}>
+            <Building size={20} />
             <span>Venue Batches</span>
           </div>
           <div className="sidebar-item" onClick={handleProfileClick}>
@@ -422,15 +328,15 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
         <div className="welcome-banner">
           <div className="welcome-text">
             <h2>
-              <FileSpreadsheet size={32} />
-              Result Batches
+              <Building size={32} />
+              Venue Batches
             </h2>
             <p className="banner-subtitle">
-              View and manage all uploaded result batches
+              View and manage all uploaded venue allocations
             </p>
           </div>
           <button
-            onClick={loadBatches}
+            onClick={loadVenueBatches}
             className="refresh-btn"
             disabled={isLoading}
           >
@@ -448,7 +354,7 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
               name="search"
               value={filters.search}
               onChange={handleFilterChange}
-              placeholder="Search by course code, title, or department..."
+              placeholder="Search by course code, title, department, or venue..."
               disabled={isLoading}
             />
           </div>
@@ -467,8 +373,10 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                   disabled={isLoading}
                 >
                   <option value="">All Departments</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
                   ))}
                 </select>
                 <ChevronDown size={20} className="select-icon" />
@@ -488,8 +396,10 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                   disabled={isLoading}
                 >
                   <option value="">All Levels</option>
-                  {levels.map(level => (
-                    <option key={level} value={level}>{level} Level</option>
+                  {levels.map((level) => (
+                    <option key={level} value={level}>
+                      {level} Level
+                    </option>
                   ))}
                 </select>
                 <ChevronDown size={20} className="select-icon" />
@@ -509,8 +419,10 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                   disabled={isLoading}
                 >
                   <option value="">All Sessions</option>
-                  {sessions.map(session => (
-                    <option key={session} value={session}>{session}</option>
+                  {sessions.map((session) => (
+                    <option key={session} value={session}>
+                      {session}
+                    </option>
                   ))}
                 </select>
                 <ChevronDown size={20} className="select-icon" />
@@ -527,27 +439,11 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                   disabled={isLoading}
                 >
                   <option value="">All Semesters</option>
-                  {semesters.map(sem => (
-                    <option key={sem} value={sem}>{sem} Semester</option>
+                  {semesters.map((sem) => (
+                    <option key={sem} value={sem}>
+                      {sem} Semester
+                    </option>
                   ))}
-                </select>
-                <ChevronDown size={20} className="select-icon" />
-              </div>
-            </div>
-
-            <div className="filter-group">
-              <label>Status</label>
-              <div className="select-wrapper">
-                <select
-                  name="status"
-                  value={filters.status}
-                  onChange={handleFilterChange}
-                  disabled={isLoading}
-                >
-                  <option value="">All Status</option>
-                  <option value="completed">Completed</option>
-                  <option value="partial">Partial</option>
-                  <option value="pending">Pending</option>
                 </select>
                 <ChevronDown size={20} className="select-icon" />
               </div>
@@ -567,9 +463,10 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
         <div className="content-section">
           <div className="section-header">
             <h3>
-              Result Batches
+              Venue Batches
               <span className="count-badge">
-                {filteredBatches.length} batch{filteredBatches.length !== 1 ? 'es' : ''}
+                {filteredVenueBatches.length} batch
+                {filteredVenueBatches.length !== 1 ? "es" : ""}
               </span>
             </h3>
           </div>
@@ -577,27 +474,27 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
           {isLoading ? (
             <div className="loading-state">
               <RefreshCw size={32} className="spinning" />
-              <p>Loading result batches...</p>
+              <p>Loading venue batches...</p>
             </div>
           ) : error ? (
             <div className="error-state">
               <AlertCircle size={48} color="#ef4444" />
-              <h4>Failed to Load Batches</h4>
+              <h4>Failed to Load Venue Batches</h4>
               <p>{error}</p>
-              <button onClick={loadBatches} className="retry-btn">
+              <button onClick={loadVenueBatches} className="retry-btn">
                 Try Again
               </button>
             </div>
-          ) : filteredBatches.length === 0 ? (
+          ) : filteredVenueBatches.length === 0 ? (
             <div className="empty-state">
-              <FileSpreadsheet size={48} color="#94a3b8" />
-              <h4>No Result Batches Found</h4>
+              <Building size={48} color="#94a3b8" />
+              <h4>No Venue Batches Found</h4>
               <p>
-                {Object.values(filters).some(f => f)
-                  ? "No batches match your filters. Try adjusting your search criteria."
-                  : "No result batches have been uploaded yet."}
+                {Object.values(filters).some((f) => f)
+                  ? "No venue batches match your filters. Try adjusting your search criteria."
+                  : "No venue batches have been uploaded yet."}
               </p>
-              {Object.values(filters).some(f => f) && (
+              {Object.values(filters).some((f) => f) && (
                 <button onClick={clearFilters} className="clear-filters-btn">
                   Clear Filters
                 </button>
@@ -613,20 +510,23 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                       <th>Course</th>
                       <th>Department</th>
                       <th>Level</th>
-                      <th>Session</th>
-
+                      <th>Session/Semester</th>
+                      <th>Venue</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {currentBatches.map((batch) => {
-
                       return (
                         <tr key={batch.id}>
                           <td>
                             <div className="course-info">
-                              <div className="course-code">{batch.course_code}</div>
-                              <div className="course-title">{batch.course_title}</div>
+                              <div className="course-code">
+                                {batch.course_code}
+                              </div>
+                              <div className="course-title">
+                                {batch.course_title}
+                              </div>
                             </div>
                           </td>
                           <td>
@@ -647,8 +547,12 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                               {batch.session} - {batch.semester}
                             </div>
                           </td>
-
-
+                          <td>
+                            <div className="venue-info">
+                              <Building size={14} />
+                              {batch.venue}
+                            </div>
+                          </td>
                           <td>
                             <div className="action-buttons">
                               <button
@@ -671,7 +575,9 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
               {totalPages > 1 && (
                 <div className="pagination">
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
                     disabled={currentPage === 1}
                     className="pagination-btn"
                   >
@@ -696,7 +602,7 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`page-btn ${currentPage === pageNum ? 'active' : ''}`}
+                          className={`page-btn ${currentPage === pageNum ? "active" : ""}`}
                         >
                           {pageNum}
                         </button>
@@ -705,7 +611,9 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                   </div>
 
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                     disabled={currentPage === totalPages}
                     className="pagination-btn"
                   >
@@ -730,7 +638,7 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
           >
             <Menu size={28} />
           </button>
-          <h1>Result Batches</h1>
+          <h1>Venue Batches</h1>
         </div>
 
         {/* Mobile Profile */}
@@ -763,9 +671,9 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
               <div className="accordion-header">
                 <Filter size={18} />
                 <span>Filters</span>
-                {Object.values(filters).some(f => f) && (
+                {Object.values(filters).some((f) => f) && (
                   <span className="filter-count">
-                    {Object.values(filters).filter(f => f).length}
+                    {Object.values(filters).filter((f) => f).length}
                   </span>
                 )}
               </div>
@@ -780,8 +688,10 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                     disabled={isLoading}
                   >
                     <option value="">All</option>
-                    {departments.map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
+                    {departments.map((dept) => (
+                      <option key={dept} value={dept}>
+                        {dept}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -795,8 +705,10 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                     disabled={isLoading}
                   >
                     <option value="">All</option>
-                    {levels.map(level => (
-                      <option key={level} value={level}>{level} Level</option>
+                    {levels.map((level) => (
+                      <option key={level} value={level}>
+                        {level} Level
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -810,28 +722,15 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                     disabled={isLoading}
                   >
                     <option value="">All</option>
-                    {sessions.map(session => (
-                      <option key={session} value={session}>{session}</option>
+                    {sessions.map((session) => (
+                      <option key={session} value={session}>
+                        {session}
+                      </option>
                     ))}
                   </select>
                 </div>
 
-                <div className="mobile-filter-group">
-                  <label>Status</label>
-                  <select
-                    name="status"
-                    value={filters.status}
-                    onChange={handleFilterChange}
-                    disabled={isLoading}
-                  >
-                    <option value="">All</option>
-                    <option value="completed">Completed</option>
-                    <option value="partial">Partial</option>
-                    <option value="pending">Pending</option>
-                  </select>
-                </div>
-
-                {Object.values(filters).some(f => f) && (
+                {Object.values(filters).some((f) => f) && (
                   <button
                     onClick={clearFilters}
                     className="clear-filters-btn"
@@ -848,30 +747,28 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
           {isLoading ? (
             <div className="mobile-loading">
               <RefreshCw size={24} className="spinning" />
-              <p>Loading batches...</p>
+              <p>Loading venue batches...</p>
             </div>
           ) : error ? (
             <div className="mobile-error">
               <AlertCircle size={32} color="#ef4444" />
-              <p>Failed to load batches</p>
-              <button onClick={loadBatches} className="retry-btn">
+              <p>Failed to load venue batches</p>
+              <button onClick={loadVenueBatches} className="retry-btn">
                 Try Again
               </button>
             </div>
-          ) : filteredBatches.length === 0 ? (
+          ) : filteredVenueBatches.length === 0 ? (
             <div className="mobile-empty">
-              <FileSpreadsheet size={40} color="#94a3b8" />
-              <p>No batches found</p>
+              <Building size={40} color="#94a3b8" />
+              <p>No venue batches found</p>
             </div>
           ) : (
             <div className="mobile-batches-list">
               {currentBatches.map((batch) => {
-
                 return (
                   <div key={batch.id} className="mobile-batch-card">
                     <div className="batch-header">
                       <div className="course-code">{batch.course_code}</div>
-
                     </div>
 
                     <div className="batch-title">{batch.course_title}</div>
@@ -889,6 +786,10 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                         <Calendar size={14} />
                         {batch.session}
                       </div>
+                      <div className="detail-item">
+                        <Building size={14} />
+                        Venue: {batch.venue}
+                      </div>
                     </div>
 
                     <div className="batch-date">
@@ -897,7 +798,6 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                     </div>
 
                     <div className="batch-actions">
-
                       <button
                         onClick={() => handleDeleteClick(batch.id)}
                         className="mobile-action-btn delete-btn"
@@ -913,7 +813,9 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
               {totalPages > 1 && (
                 <div className="mobile-pagination">
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
                     disabled={currentPage === 1}
                     className="mobile-pagination-btn"
                   >
@@ -925,7 +827,9 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                   </div>
 
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                     disabled={currentPage === totalPages}
                     className="mobile-pagination-btn"
                   >
@@ -938,7 +842,9 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
         </div>
 
         {/* Mobile Sidebar Menu */}
-        <div className={`mobile-sidebar-overlay ${isMobileMenuOpen ? "open" : ""}`}>
+        <div
+          className={`mobile-sidebar-overlay ${isMobileMenuOpen ? "open" : ""}`}
+        >
           <div
             className="overlay-backdrop"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -971,9 +877,16 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
                 <Building size={20} />
                 <span>Upload Venue</span>
               </div>
-              <div className="sidebar-item active">
+              <div className="sidebar-item" onClick={handleResultBatchClick}>
                 <FileSpreadsheet size={20} />
                 <span>Result Batches</span>
+              </div>
+              <div
+                className="sidebar-item active"
+                onClick={handleVenueBatchClick}
+              >
+                <Building size={20} />
+                <span>Venue Batches</span>
               </div>
               <div className="sidebar-item" onClick={handleProfileClick}>
                 <User size={20} />
@@ -991,4 +904,4 @@ const handleVenueBatchClick = () => navigate("/admin/venues/batches");
   );
 };
 
-export default AdminResultBatches;
+export default AdminVenueBatches;

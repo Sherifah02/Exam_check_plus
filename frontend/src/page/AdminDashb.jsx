@@ -23,10 +23,10 @@ import { useAuthStore } from "../store/authStore";
 const AdminDashb = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
- const handleDashboardClick = () => navigate("/admin/dashboard");
+  const handleDashboardClick = () => navigate("/admin/dashboard");
   const handleProfileClick = () => navigate("/admin/profile");
   const handleResultUpload = () => navigate("/admin/result-upload");
-const {user, logout} = useAuthStore()
+  const { user, logout } = useAuthStore();
   // Logout handlers
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -100,7 +100,7 @@ const {user, logout} = useAuthStore()
       {/* ======================= */}
       {/* 1. DESKTOP SIDEBAR      */}
       {/* ======================= */}
-       <aside className="desktop-sidebar">
+      <aside className="desktop-sidebar hidden">
         <div className="sidebar-logo">
           <ShieldCheck size={28} />
           <span>Admin Portal</span>
@@ -115,13 +115,26 @@ const {user, logout} = useAuthStore()
             <FileSpreadsheet size={20} />
             <span>Upload Results</span>
           </div>
-          <div className="sidebar-item" onClick={()=>  navigate("/admin/upload-venue")}>
+          <div
+            className="sidebar-item"
+            onClick={() => navigate("/admin/upload-venue")}
+          >
             <Building size={20} />
             <span>Upload Venue</span>
           </div>
-          <div className="sidebar-item " onClick={()=> navigate("/admin/results/batches")}>
+          <div
+            className="sidebar-item "
+            onClick={() => navigate("/admin/results/batches")}
+          >
             <FileSpreadsheet size={20} />
             <span>Result Batches</span>
+          </div>
+          <div
+            className="sidebar-item "
+            onClick={() => navigate("/admin/venues/batches")}
+          >
+            <FileSpreadsheet size={20} />
+            <span>Venue Batches</span>
           </div>
           <div className="sidebar-item" onClick={handleProfileClick}>
             <User size={20} />

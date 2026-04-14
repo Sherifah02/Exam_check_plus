@@ -79,5 +79,19 @@ export class VenueBatch {
       throw error;
     }
   }
+  static async batchDelete(batch_id) {
+    try {
+      const query = `
+        DELETE FROM exam.venue_batches
+        WHERE id = $1
+        RETURNING id;
+      `;
+      const result = await pool.query(query, [batch_id]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error("❌ VenueBatch.batchDelete error:", error.message);
+      throw error;
+    }
+  }
 
 }

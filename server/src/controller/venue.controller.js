@@ -162,3 +162,36 @@ export const getVenueBatches = async (req, res) => {
     });
   }
 };
+
+export const deleteVenueBatch = async (req, res) => {
+  const { batch_id } = req.params;
+
+  if (!batch_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Batch id is required",
+    });
+  }
+
+  try {
+    const deletedBatch = await VenueBatch.batchDelete(batch_id);
+
+    if (!deletedBatch) {
+      return res.status(404).json({
+        success: false,
+        message: "Venue batch not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Venue batch deleted successfully",
+    });
+  } catch (error) {
+    console.error("❌ deleteVenueBatch error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete venue batch",
+    });
+  }
+};

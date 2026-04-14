@@ -52,7 +52,7 @@ const AdminVenueBatches = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const { fetchVenueBatches } = useVenueStore();
+  const { fetchVenueBatches, deleteVenueBatch } = useVenueStore();
 
   // Load venue batches on mount
   useEffect(() => {
@@ -189,18 +189,15 @@ const AdminVenueBatches = () => {
     if (!showDeleteModal) return;
 
     try {
-      // Replace with venue-specific delete API call
-      // const response = await deleteVenueBatch(showDeleteModal);
-      // if(!response.success) return
+      const response = await deleteVenueBatch(showDeleteModal);
+      if (!response.success) return;
 
-      // Remove from local state
-      setVenueBatches(
-        venueBatches.filter((batch) => batch.id !== showDeleteModal),
+      setVenueBatches((prev) =>
+        prev.filter((batch) => batch.id !== showDeleteModal),
       );
-      toast.success("Venue batch deleted successfully!");
     } catch (error) {
       console.error("Failed to delete venue batch:", error);
-      alert("Failed to delete venue batch. Please try again.");
+      toast.error("Failed to delete venue batch. Please try again.");
     } finally {
       setShowDeleteModal(null);
     }

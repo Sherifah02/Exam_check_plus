@@ -84,5 +84,28 @@ export const useVenueStore = create((set) => ({
       set({ loadingVenue: false, venueError: errMsg });
       return { success: false, data: [] };
     }
+  },
+  deleteVenueBatch: async (batchId) => {
+    set({ loadingVenue: true, venueSuccess: null, venueError: null });
+    try {
+      const { data } = await api.delete(`${ENDPOINT}/delete-venue-batch/${batchId}`);
+      if (!data.success) {
+        set({ loadingVenue: false, venueSuccess: null, venueError: data.message });
+        toast.error(data.message);
+        return { success: false };
+      }
+
+      set({ loadingVenue: false, venueSuccess: data.message || null, venueError: null });
+      toast.success(data.message);
+      return { success: true };
+    } catch (error) {
+      const errMsg =
+        error?.response?.data?.message || error.message || "An error occurred";
+      toast.error(errMsg);
+      set({ loadingVenue: false, venueError: errMsg });
+      return { success: false };
+    } finally {
+      set({ loadingVenue: false });
+    }
   }
 }));

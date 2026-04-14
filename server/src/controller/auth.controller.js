@@ -150,6 +150,7 @@ export const generateTempPassword = async (req, res) => {
       reg_number: user.reg_number,
       expires_at,
     });
+    console.log(temp_password)
     return res.status(200).json({
       success: true,
       message: "Temporarily password sent to your email",
